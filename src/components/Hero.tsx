@@ -32,7 +32,7 @@ export const Hero = () => {
           className="text-center"
         >
           <img 
-            src="/dj-epidemik-logo.png" 
+            src="dj-epidemik-logo.png" 
             alt="DJ EPIDEMIK"
             className="w-[500px] md:w-[700px] mx-auto mb-6 filter brightness-200"
           />
