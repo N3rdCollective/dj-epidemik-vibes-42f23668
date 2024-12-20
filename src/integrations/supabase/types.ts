@@ -9,54 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      events: {
-        Row: {
-          created_at: string
-          end_time: string
-          ical_uid: string | null
-          id: string
-          is_imported: boolean | null
-          is_live: boolean | null
-          location: string
-          packages: Json | null
-          start_time: string
-          title: string
-          type: string
-          updated_at: string
-          venue: string
-        }
-        Insert: {
-          created_at?: string
-          end_time: string
-          ical_uid?: string | null
-          id?: string
-          is_imported?: boolean | null
-          is_live?: boolean | null
-          location: string
-          packages?: Json | null
-          start_time: string
-          title: string
-          type: string
-          updated_at?: string
-          venue: string
-        }
-        Update: {
-          created_at?: string
-          end_time?: string
-          ical_uid?: string | null
-          id?: string
-          is_imported?: boolean | null
-          is_live?: boolean | null
-          location?: string
-          packages?: Json | null
-          start_time?: string
-          title?: string
-          type?: string
-          updated_at?: string
-          venue?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           created_at: string
