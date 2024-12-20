@@ -1,6 +1,14 @@
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export const Hero = () => {
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/public/dj-epidemik-logo.png";
+    img.onload = () => console.log("Image loaded successfully");
+    img.onerror = (e) => console.error("Error loading image:", e);
+  }, []);
+
   return (
     <section className="min-h-screen relative flex items-center justify-center bg-[#0A0A0A] overflow-hidden">
       {/* Video Background */}
@@ -32,9 +40,10 @@ export const Hero = () => {
           className="text-center"
         >
           <img 
-            src="dj-epidemik-logo.png" 
+            src="/public/dj-epidemik-logo.png" 
             alt="DJ EPIDEMIK"
             className="w-[500px] md:w-[700px] mx-auto mb-6 filter brightness-200"
+            onError={(e) => console.error("Image failed to load:", e)}
           />
           <p className="text-xl md:text-2xl text-gray-300 mb-8">
             Experience the Epidemic of Sound
