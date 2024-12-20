@@ -3,6 +3,7 @@ import axios from "axios";
 import { parseICalEvents } from "@/utils/icalParser";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 export interface ICalEvent {
   date: string;
@@ -17,6 +18,13 @@ export interface ICalEvent {
   }[];
   icalLink: string;
   isCameloEvent?: boolean;
+  icalUid?: string;
+}
+
+interface DbPackage {
+  name: string;
+  price: number;
+  description: string;
 }
 
 export const useEvents = () => {
@@ -38,29 +46,50 @@ export const useEvents = () => {
 
       console.log('Database events:', data);
       
-      return data.map(event => ({
-        date: new Date(event.start_time).toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        }).toUpperCase(),
-        venue: event.venue,
-        location: event.location,
-        time: `${new Date(event.start_time).toLocaleTimeString('en-US', { 
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true
-        })} - ${new Date(event.end_time).toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true
-        })}`,
-        type: event.type as "packages" | "rsvp",
-        packages: Array.isArray(event.packages) ? event.packages : undefined,
-        icalLink: YOUR_ICAL_URL,
-        isCameloEvent: event.is_imported,
-        icalUid: event.ical_uid
-      })) as ICalEvent[];
+      return data.map(event => {
+        // Safely parse packages data
+        let parsedPackages: DbPackage[] | undefined;
+        if (event.packages && Array.isArray(event.packages)) {
+          parsedPackages = (event.packages as Json[]).map(pkg => {
+            if (typeof pkg === 'object' && pkg !== null) {
+              return {
+                name: String(pkg.name || ''),
+                price: Number(pkg.price || 0),
+                description: String(pkg.description || '')
+              };
+            }
+            return {
+              name: '',
+              price: 0,
+              description: ''
+            };
+          });
+        }
+
+        return {
+          date: new Date(event.start_time).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }).toUpperCase(),
+          venue: event.venue,
+          location: event.location,
+          time: `${new Date(event.start_time).toLocaleTimeString('en-US', { 
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+          })} - ${new Date(event.end_time).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+          })}`,
+          type: event.type as "packages" | "rsvp",
+          packages: parsedPackages,
+          icalLink: YOUR_ICAL_URL,
+          isCameloEvent: event.is_imported,
+          icalUid: event.ical_uid
+        } as ICalEvent;
+      });
     },
   });
 
