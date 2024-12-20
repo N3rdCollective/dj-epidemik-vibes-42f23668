@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export const LogoSection = () => {
   return (
-    <section className="py-20 relative">
+    <section className="py-20 relative logo-section">
       {/* Background image */}
       <div 
         className="absolute inset-0 z-0"
