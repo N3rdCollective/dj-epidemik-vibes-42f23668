@@ -27,6 +27,7 @@ interface EventCardProps {
   icalLink: string;
   selectedPackage: string;
   setSelectedPackage: (value: string) => void;
+  isCameloEvent?: boolean;
 }
 
 export const EventCard = ({
@@ -39,6 +40,7 @@ export const EventCard = ({
   icalLink,
   selectedPackage,
   setSelectedPackage,
+  isCameloEvent = false,
 }: EventCardProps) => {
   const handleRSVP = () => {
     toast.success("RSVP Confirmed! See you at the event!");
@@ -71,54 +73,56 @@ export const EventCard = ({
         <div className="text-gray-300 font-medium">{time}</div>
         
         <div className="flex gap-2">
-          {type === "packages" ? (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
-                  Get Tickets
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Select Ticket Package</DialogTitle>
-                  <DialogDescription>
-                    Choose your preferred ticket package for {venue}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <RadioGroup
-                    value={selectedPackage}
-                    onValueChange={setSelectedPackage}
-                  >
-                    {packages?.map((pkg, idx) => (
-                      <div key={idx} className="flex flex-col space-y-2 border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value={pkg.name} id={`${pkg.name}-${idx}`} />
-                          <Label htmlFor={`${pkg.name}-${idx}`} className="flex justify-between w-full">
-                            <span>{pkg.name}</span>
-                            <span className="text-primary font-bold">${pkg.price}</span>
-                          </Label>
-                        </div>
-                        <p className="text-sm text-gray-500 ml-6">{pkg.description}</p>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                  <Button 
-                    onClick={() => handleTicketPurchase(venue)}
-                    className="w-full mt-4"
-                  >
-                    Purchase Tickets
+          {!isCameloEvent && (
+            type === "packages" ? (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
+                    Get Tickets
                   </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          ) : (
-            <Button 
-              onClick={handleRSVP}
-              className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
-            >
-              RSVP Now
-            </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Select Ticket Package</DialogTitle>
+                    <DialogDescription>
+                      Choose your preferred ticket package for {venue}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <RadioGroup
+                      value={selectedPackage}
+                      onValueChange={setSelectedPackage}
+                    >
+                      {packages?.map((pkg, idx) => (
+                        <div key={idx} className="flex flex-col space-y-2 border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value={pkg.name} id={`${pkg.name}-${idx}`} />
+                            <Label htmlFor={`${pkg.name}-${idx}`} className="flex justify-between w-full">
+                              <span>{pkg.name}</span>
+                              <span className="text-primary font-bold">${pkg.price}</span>
+                            </Label>
+                          </div>
+                          <p className="text-sm text-gray-500 ml-6">{pkg.description}</p>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    <Button 
+                      onClick={() => handleTicketPurchase(venue)}
+                      className="w-full mt-4"
+                    >
+                      Purchase Tickets
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Button 
+                onClick={handleRSVP}
+                className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
+              >
+                RSVP Now
+              </Button>
+            )
           )}
           <Button
             onClick={() => handleAddToCalendar(icalLink, venue)}

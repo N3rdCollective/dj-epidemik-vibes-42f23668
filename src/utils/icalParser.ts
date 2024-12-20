@@ -12,6 +12,7 @@ interface ICalEvent {
     description: string;
   }[];
   icalLink: string;
+  isCameloEvent: boolean;
 }
 
 export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] => {
@@ -22,7 +23,6 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
   
   return Object.values(events)
     .filter((event: any) => {
-      // Filter for VEVENT type and future dates only
       if (event.type !== 'VEVENT') return false;
       const eventStart = new Date(event.start);
       return eventStart >= now;
@@ -31,12 +31,10 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
       const startDate = new Date(event.start);
       const endDate = new Date(event.end);
       
-      // Format date with full month name and day
       const month = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
       const day = startDate.getDate().toString().padStart(2, '0');
       const year = startDate.getFullYear();
 
-      // Format time in 12-hour format with AM/PM
       const startTime = startDate.toLocaleString('en-US', { 
         hour: 'numeric',
         minute: '2-digit',
@@ -66,28 +64,24 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
             description: "Premium entry with VIP area access"
           }
         ],
-        icalLink: icalUrl
+        icalLink: icalUrl,
+        isCameloEvent: true
       };
     })
     .sort((a: ICalEvent, b: ICalEvent) => {
-      // Parse dates for comparison
       const [monthA, dayA, yearA] = a.date.split(' ');
       const [monthB, dayB, yearB] = b.date.split(' ');
       
-      // Convert month names to numbers (0-11)
       const monthNumA = new Date(Date.parse(`${monthA} 1, 2000`)).getMonth();
       const monthNumB = new Date(Date.parse(`${monthB} 1, 2000`)).getMonth();
       
-      // Compare years first
       const yearDiff = parseInt(yearA) - parseInt(yearB);
       if (yearDiff !== 0) return yearDiff;
       
-      // If years are equal, compare months
       if (monthNumA !== monthNumB) {
         return monthNumA - monthNumB;
       }
       
-      // If months are equal, compare days
       return parseInt(dayA) - parseInt(dayB);
     });
 };
