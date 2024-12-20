@@ -28,6 +28,8 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
       number_of_guests: 1,
       needs_equipment: false,
       equipment_details: "",
+      start_time: "",
+      end_time: "",
     },
   });
 
@@ -49,6 +51,8 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
             number_of_guests: values.number_of_guests,
             needs_equipment: values.needs_equipment,
             equipment_details: values.equipment_details || null,
+            start_time: values.start_time,
+            end_time: values.end_time,
           },
         ]);
 

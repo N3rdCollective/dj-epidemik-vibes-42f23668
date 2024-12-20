@@ -10,7 +10,9 @@ export const bookingFormSchema = z.object({
   event_description: z.string().optional().or(z.literal("")),
   number_of_guests: z.number().min(1, "Expected attendance must be at least 1").max(1000, "For events over 1000 attendees, please contact us directly"),
   needs_equipment: z.boolean().default(false),
-  equipment_details: z.string().optional().or(z.literal(""))
+  equipment_details: z.string().optional().or(z.literal("")),
+  start_time: z.string().min(1, "Start time is required"),
+  end_time: z.string().min(1, "End time is required"),
 }).refine((data) => {
   return data.phone || data.email;
 }, {

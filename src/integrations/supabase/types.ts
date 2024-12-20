@@ -85,6 +85,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          end_time: string | null
           equipment_details: string | null
           event_date: string | null
           event_description: string | null
@@ -96,10 +97,12 @@ export type Database = {
           needs_equipment: boolean
           number_of_guests: number
           phone: string | null
+          start_time: string | null
         }
         Insert: {
           created_at?: string
           email?: string | null
+          end_time?: string | null
           equipment_details?: string | null
           event_date?: string | null
           event_description?: string | null
@@ -111,10 +114,12 @@ export type Database = {
           needs_equipment?: boolean
           number_of_guests?: number
           phone?: string | null
+          start_time?: string | null
         }
         Update: {
           created_at?: string
           email?: string | null
+          end_time?: string | null
           equipment_details?: string | null
           event_date?: string | null
           event_description?: string | null
@@ -126,6 +131,7 @@ export type Database = {
           needs_equipment?: boolean
           number_of_guests?: number
           phone?: string | null
+          start_time?: string | null
         }
         Relationships: [
           {
