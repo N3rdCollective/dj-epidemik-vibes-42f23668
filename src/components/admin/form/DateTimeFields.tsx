@@ -2,31 +2,19 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormValues } from "../types/eventTypes";
-import { parseISO, format, parse } from "date-fns";
-import { adjustEndTimeForNextDay, formatDateTimeForInput } from "@/utils/timeUtils";
+import { parseISO, format } from "date-fns";
 
 interface DateTimeFieldsProps {
   form: UseFormReturn<EventFormValues>;
 }
 
 export const DateTimeFields = ({ form }: DateTimeFieldsProps) => {
-  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const startTime = parseISO(form.getValues("start_time"));
-    const endTime = parseISO(e.target.value);
-    
-    const adjustedEndTime = adjustEndTimeForNextDay(startTime, endTime);
-    form.setValue("end_time", formatDateTimeForInput(adjustedEndTime));
-  };
-
   // Convert the datetime-local value to 12-hour format for display
   const formatDisplayTime = (isoString: string) => {
     if (!isoString) return '';
     const date = parseISO(isoString);
     return format(date, "MM/dd/yyyy hh:mm a");
   };
-
-  const startTimeValue = form.watch("start_time");
-  const endTimeValue = form.watch("end_time");
 
   return (
     <>
@@ -66,8 +54,7 @@ export const DateTimeFields = ({ form }: DateTimeFieldsProps) => {
               <div className="relative">
                 <Input 
                   type="datetime-local" 
-                  {...field} 
-                  onChange={handleEndTimeChange}
+                  {...field}
                   className="opacity-0 absolute inset-0 cursor-pointer" 
                 />
                 <Input 
