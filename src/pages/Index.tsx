@@ -3,6 +3,7 @@ import { Music } from "@/components/Music";
 import { About } from "@/components/About";
 import { Events } from "@/components/Events";
 import { Contact } from "@/components/Contact";
+import { SocialFeeds } from "@/components/SocialFeeds";
 
 const Index = () => {
   return (
@@ -10,6 +11,7 @@ const Index = () => {
       <Hero />
       <Music />
       <About />
+      <SocialFeeds />
       <Events />
       <Contact />
     </div>
