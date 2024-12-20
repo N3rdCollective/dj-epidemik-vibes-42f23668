@@ -13,6 +13,8 @@ const rsvpFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
+  event_date: z.string().min(1, "Event date is required"),
+  event_duration: z.string().min(1, "Event duration is required"),
   number_of_guests: z.number().min(1, "Expected attendance must be at least 1").max(1000, "For events over 1000 attendees, please contact us directly"),
   needs_equipment: z.boolean().default(false),
   equipment_details: z.string().optional().or(z.literal(""))
@@ -37,6 +39,8 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
       name: "",
       email: "",
       phone: "",
+      event_date: "",
+      event_duration: "",
       number_of_guests: 1,
       needs_equipment: false,
       equipment_details: "",
@@ -54,6 +58,8 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
             name: values.name,
             email: values.email || null,
             phone: values.phone || null,
+            event_date: values.event_date,
+            event_duration: values.event_duration,
             number_of_guests: values.number_of_guests,
             needs_equipment: values.needs_equipment,
             equipment_details: values.equipment_details || null,
@@ -84,6 +90,36 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
               <FormLabel>Event Organizer Name *</FormLabel>
               <FormControl>
                 <Input placeholder="Your name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="event_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Date *</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="event_duration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Duration *</FormLabel>
+              <FormControl>
+                <Input 
+                  type="text" 
+                  placeholder="e.g., 4 hours, 6 hours" 
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
