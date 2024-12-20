@@ -1,8 +1,8 @@
 export const SocialFeeds = () => {
   return (
-    <section className="py-24 bg-[#1A1F2C]">
+    <section className="py-24 bg-white">
       <div className="container mx-auto px-8">
-        <h2 className="text-4xl font-bold text-white mb-16 text-center">Follow My Social Media</h2>
+        <h2 className="text-4xl font-bold text-black mb-16 text-center">Follow My Social Media</h2>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-12 justify-items-center max-w-6xl mx-auto px-4">
           {/* TikTok */}
