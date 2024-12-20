@@ -21,10 +21,23 @@ export const Events = () => {
       time: "10 PM - 2 AM",
       type: "packages",
       packages: [
-        { name: "General Admission", price: 30 },
-        { name: "VIP Access", price: 75 },
-        { name: "VIP Table Service", price: 300 },
+        { 
+          name: "General Admission", 
+          price: 30,
+          description: "Basic entry to the event with access to main dance floor and bar areas."
+        },
+        { 
+          name: "VIP Access", 
+          price: 75,
+          description: "Premium entry with access to VIP lounge, complimentary welcome drink, and priority entry."
+        },
+        { 
+          name: "VIP Table Service", 
+          price: 300,
+          description: "Exclusive table service for up to 6 people, includes 2 premium bottles, dedicated server, and best view of the stage."
+        },
       ],
+      icalLink: "https://calendar.google.com/calendar/ical/example1@gmail.com/public/basic.ics"
     },
     {
       date: "MAR 22",
@@ -33,10 +46,23 @@ export const Events = () => {
       time: "9 PM - 1 AM",
       type: "packages",
       packages: [
-        { name: "Early Bird", price: 45 },
-        { name: "Regular Admission", price: 60 },
-        { name: "VIP Experience", price: 120 },
+        { 
+          name: "Early Bird", 
+          price: 45,
+          description: "Limited early access tickets at a special rate. Includes festival entry and access to all main stages."
+        },
+        { 
+          name: "Regular Admission", 
+          price: 60,
+          description: "Standard festival entry with access to all stages and general amenities."
+        },
+        { 
+          name: "VIP Experience", 
+          price: 120,
+          description: "Enhanced festival experience with VIP viewing areas, premium restrooms, and exclusive VIP bar access."
+        },
       ],
+      icalLink: "https://calendar.google.com/calendar/ical/example2@gmail.com/public/basic.ics"
     },
     {
       date: "APR 05",
@@ -44,6 +70,7 @@ export const Events = () => {
       location: "New York, NY",
       time: "11 PM - 4 AM",
       type: "rsvp",
+      icalLink: "https://calendar.google.com/calendar/ical/example3@gmail.com/public/basic.ics"
     },
   ];
 
@@ -60,6 +87,12 @@ export const Events = () => {
     }
     toast.success(`Ticket purchase initiated for ${eventName} - ${selectedPackage}`);
     setSelectedPackage("");
+  };
+
+  const handleAddToCalendar = (icalLink: string, eventName: string) => {
+    // In a real implementation, you would handle the iCal subscription here
+    window.open(icalLink, '_blank');
+    toast.success(`Added ${eventName} to your calendar!`);
   };
 
   return (
@@ -84,52 +117,64 @@ export const Events = () => {
                 </div>
                 <div className="text-gray-300 font-medium">{event.time}</div>
                 
-                {event.type === "packages" ? (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
-                        Get Tickets
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Select Ticket Package</DialogTitle>
-                        <DialogDescription>
-                          Choose your preferred ticket package for {event.venue}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <RadioGroup
-                          value={selectedPackage}
-                          onValueChange={setSelectedPackage}
-                        >
-                          {event.packages?.map((pkg, idx) => (
-                            <div key={idx} className="flex items-center space-x-2">
-                              <RadioGroupItem value={pkg.name} id={`${pkg.name}-${idx}`} />
-                              <Label htmlFor={`${pkg.name}-${idx}`} className="flex justify-between w-full">
-                                <span>{pkg.name}</span>
-                                <span className="text-primary font-bold">${pkg.price}</span>
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                        <Button 
-                          onClick={() => handleTicketPurchase(event.venue)}
-                          className="w-full mt-4"
-                        >
-                          Purchase Tickets
+                <div className="flex gap-2">
+                  {event.type === "packages" ? (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
+                          Get Tickets
                         </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                ) : (
-                  <Button 
-                    onClick={handleRSVP}
-                    className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Select Ticket Package</DialogTitle>
+                          <DialogDescription>
+                            Choose your preferred ticket package for {event.venue}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <RadioGroup
+                            value={selectedPackage}
+                            onValueChange={setSelectedPackage}
+                          >
+                            {event.packages?.map((pkg, idx) => (
+                              <div key={idx} className="flex flex-col space-y-2 border border-gray-200 rounded-lg p-4">
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value={pkg.name} id={`${pkg.name}-${idx}`} />
+                                  <Label htmlFor={`${pkg.name}-${idx}`} className="flex justify-between w-full">
+                                    <span>{pkg.name}</span>
+                                    <span className="text-primary font-bold">${pkg.price}</span>
+                                  </Label>
+                                </div>
+                                <p className="text-sm text-gray-500 ml-6">{pkg.description}</p>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                          <Button 
+                            onClick={() => handleTicketPurchase(event.venue)}
+                            className="w-full mt-4"
+                          >
+                            Purchase Tickets
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  ) : (
+                    <Button 
+                      onClick={handleRSVP}
+                      className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
+                    >
+                      RSVP Now
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => handleAddToCalendar(event.icalLink, event.venue)}
+                    variant="outline"
+                    className="px-4"
                   >
-                    RSVP Now
+                    Add to Calendar
                   </Button>
-                )}
+                </div>
               </div>
             </div>
           ))}
