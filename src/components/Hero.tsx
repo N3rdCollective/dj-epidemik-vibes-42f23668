@@ -13,7 +13,7 @@ export const Hero = () => {
           className="w-full h-full object-cover opacity-50"
         >
           <source
-            src="https://assets.mixkit.co/videos/preview/mixkit-dj-playing-music-at-a-concert-814-large.mp4"
+            src="https://djepidemik.com/wp-content/uploads/2024/10/hero-video.mp4"
             type="video/mp4"
           />
           Your browser does not support the video tag.
