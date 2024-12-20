@@ -36,6 +36,23 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
   const handleRSVP = async (values: BookingFormValues) => {
     try {
       console.log("Submitting booking request:", { eventId, ...values });
+      
+      // Combine date and time to create proper timestamps
+      const eventDate = new Date(values.event_date);
+      const [startHours, startMinutes] = values.start_time.split(':');
+      const [endHours, endMinutes] = values.end_time.split(':');
+      
+      const startTimestamp = new Date(eventDate);
+      startTimestamp.setHours(parseInt(startHours), parseInt(startMinutes));
+      
+      const endTimestamp = new Date(eventDate);
+      endTimestamp.setHours(parseInt(endHours), parseInt(endMinutes));
+      
+      // If end time is before start time, assume it's the next day
+      if (endTimestamp < startTimestamp) {
+        endTimestamp.setDate(endTimestamp.getDate() + 1);
+      }
+
       const { error } = await supabase
         .from("rsvps")
         .insert([
@@ -51,8 +68,8 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
             number_of_guests: values.number_of_guests,
             needs_equipment: values.needs_equipment,
             equipment_details: values.equipment_details || null,
-            start_time: values.start_time,
-            end_time: values.end_time,
+            start_time: startTimestamp.toISOString(),
+            end_time: endTimestamp.toISOString(),
           },
         ]);
 
