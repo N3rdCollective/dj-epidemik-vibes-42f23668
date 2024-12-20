@@ -9,11 +9,52 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+const ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=b1V4c2N4ck9RODAxWmZ6Q25MWT0tLXJ0c2dleFRqM3hjWSs5bDItLUpmd00wYS9hRzBMTEFQVDZTU0hoeHc9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
+
+interface ICalEvent {
+  date: string;
+  venue: string;
+  location: string;
+  time: string;
+  type: "packages" | "rsvp";
+  packages?: {
+    name: string;
+    price: number;
+    description: string;
+  }[];
+  icalLink: string;
+}
 
 export const Events = () => {
-  const events = [
+  const [selectedPackage, setSelectedPackage] = useState("");
+  const [events, setEvents] = useState<ICalEvent[]>([]);
+
+  const { data: icalData, isLoading } = useQuery({
+    queryKey: ['ical-events'],
+    queryFn: async () => {
+      console.log('Fetching iCal data...');
+      const response = await axios.get(ICAL_URL);
+      console.log('iCal response:', response.data);
+      return response.data;
+    },
+  });
+
+  useEffect(() => {
+    if (icalData) {
+      // Here we would parse the iCal data and merge it with our existing events
+      // For now, we'll keep the existing events as fallback
+      console.log('Processing iCal data...');
+      // The actual implementation would parse the iCal format and create event objects
+      // This is a placeholder for the parsing logic
+    }
+  }, [icalData]);
+
+  const defaultEvents: ICalEvent[] = [
     {
       date: "MAR 15",
       venue: "Club Nova",
@@ -37,7 +78,7 @@ export const Events = () => {
           description: "Exclusive table service for up to 6 people, includes 2 premium bottles, dedicated server, and best view of the stage."
         },
       ],
-      icalLink: "https://calendar.google.com/calendar/ical/example1@gmail.com/public/basic.ics"
+      icalLink: ICAL_URL
     },
     {
       date: "MAR 22",
@@ -74,8 +115,6 @@ export const Events = () => {
     },
   ];
 
-  const [selectedPackage, setSelectedPackage] = useState("");
-
   const handleRSVP = () => {
     toast.success("RSVP Confirmed! See you at the event!");
   };
@@ -90,10 +129,23 @@ export const Events = () => {
   };
 
   const handleAddToCalendar = (icalLink: string, eventName: string) => {
-    // In a real implementation, you would handle the iCal subscription here
     window.open(icalLink, '_blank');
     toast.success(`Added ${eventName} to your calendar!`);
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-[#0A0A0A]" id="events">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white text-center mb-12">
+            Loading Events...
+          </h2>
+        </div>
+      </section>
+    );
+  }
+
+  const displayEvents = events.length > 0 ? events : defaultEvents;
 
   return (
     <section className="py-20 bg-[#0A0A0A]" id="events">
@@ -102,7 +154,7 @@ export const Events = () => {
           Upcoming Events
         </h2>
         <div className="max-w-4xl mx-auto space-y-6">
-          {events.map((event, index) => (
+          {displayEvents.map((event, index) => (
             <div
               key={index}
               className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-700"
