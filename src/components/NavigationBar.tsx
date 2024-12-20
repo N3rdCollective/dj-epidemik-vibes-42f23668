@@ -1,9 +1,26 @@
 import { Navigation } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export const NavigationBar = () => {
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroSection = document.querySelector('section');
+      if (heroSection) {
+        const heroHeight = heroSection.offsetHeight;
+        const scrollPosition = window.scrollY;
+        setIsSticky(scrollPosition >= heroHeight);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <nav className="bg-black/50 backdrop-blur-sm border-y border-primary/20">
+    <nav className={`${isSticky ? 'fixed top-0 left-0 right-0 z-50' : ''} bg-black/50 backdrop-blur-sm border-y border-primary/20`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
