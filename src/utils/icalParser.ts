@@ -35,12 +35,24 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
       const month = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
       const day = startDate.getDate().toString().padStart(2, '0');
       const year = startDate.getFullYear();
+
+      // Format time in 12-hour format with AM/PM
+      const startTime = startDate.toLocaleString('en-US', { 
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true 
+      });
+      const endTime = endDate.toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
       
       return {
         date: `${month} ${day} ${year}`,
         venue: event.summary || 'TBA',
         location: event.location || 'TBA',
-        time: `${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')} - ${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`,
+        time: `${startTime} - ${endTime}`,
         type: "packages",
         packages: [
           { 
