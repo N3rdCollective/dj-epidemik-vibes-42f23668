@@ -86,6 +86,8 @@ export type Database = {
           created_at: string
           email: string | null
           equipment_details: string | null
+          event_date: string | null
+          event_duration: string | null
           event_id: string | null
           id: string
           name: string
@@ -97,6 +99,8 @@ export type Database = {
           created_at?: string
           email?: string | null
           equipment_details?: string | null
+          event_date?: string | null
+          event_duration?: string | null
           event_id?: string | null
           id?: string
           name: string
@@ -108,6 +112,8 @@ export type Database = {
           created_at?: string
           email?: string | null
           equipment_details?: string | null
+          event_date?: string | null
+          event_duration?: string | null
           event_id?: string | null
           id?: string
           name?: string

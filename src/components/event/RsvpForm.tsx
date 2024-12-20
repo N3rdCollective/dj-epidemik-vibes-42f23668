@@ -1,31 +1,13 @@
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-const rsvpFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email().optional().or(z.literal("")),
-  phone: z.string().optional().or(z.literal("")),
-  event_date: z.string().min(1, "Event date is required"),
-  event_duration: z.string().min(1, "Event duration is required"),
-  number_of_guests: z.number().min(1, "Expected attendance must be at least 1").max(1000, "For events over 1000 attendees, please contact us directly"),
-  needs_equipment: z.boolean().default(false),
-  equipment_details: z.string().optional().or(z.literal(""))
-}).refine((data) => {
-  return data.phone || data.email;
-}, {
-  message: "Either phone number or email must be provided for booking confirmation",
-  path: ["email"],
-});
-
-type RsvpFormValues = z.infer<typeof rsvpFormSchema>;
+import { BookingContactFields } from "./form/BookingContactFields";
+import { BookingEventFields } from "./form/BookingEventFields";
+import { BookingEquipmentFields } from "./form/BookingEquipmentFields";
+import { bookingFormSchema, BookingFormValues } from "./types/bookingTypes";
 
 interface RsvpFormProps {
   eventId: string;
@@ -33,8 +15,8 @@ interface RsvpFormProps {
 }
 
 export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
-  const form = useForm<RsvpFormValues>({
-    resolver: zodResolver(rsvpFormSchema),
+  const form = useForm<BookingFormValues>({
+    resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -47,7 +29,7 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
     },
   });
 
-  const handleRSVP = async (values: RsvpFormValues) => {
+  const handleRSVP = async (values: BookingFormValues) => {
     try {
       console.log("Submitting booking request:", { eventId, ...values });
       const { error } = await supabase
@@ -82,131 +64,12 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleRSVP)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Event Organizer Name *</FormLabel>
-              <FormControl>
-                <Input placeholder="Your name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <BookingContactFields form={form} />
+        <BookingEventFields form={form} />
+        <BookingEquipmentFields 
+          form={form} 
+          showEquipmentDetails={showEquipmentDetails}
         />
-        <FormField
-          control={form.control}
-          name="event_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Event Date *</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="event_duration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Event Duration *</FormLabel>
-              <FormControl>
-                <Input 
-                  type="text" 
-                  placeholder="e.g., 4 hours, 6 hours" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email (Required for booking confirmation)</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="your@email.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number (Alternative contact method)</FormLabel>
-              <FormControl>
-                <Input type="tel" placeholder="(123) 456-7890" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="number_of_guests"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Expected Attendance *</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  min={1} 
-                  max={1000} 
-                  {...field} 
-                  onChange={e => field.onChange(parseInt(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="needs_equipment"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Venue has sound equipment available
-                </FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        {showEquipmentDetails && (
-          <FormField
-            control={form.control}
-            name="equipment_details"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Equipment Details</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Please describe the available sound equipment at the venue..."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
         <Button type="submit" className="w-full">
           Submit Booking Request
         </Button>
