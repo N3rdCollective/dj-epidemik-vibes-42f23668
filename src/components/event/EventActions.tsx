@@ -8,6 +8,7 @@ interface EventActionsProps {
   isCameloEvent: boolean;
   venue: string;
   icalLink: string;
+  date: string; // Add date prop
   handleAddToCalendar: (icalLink: string, venue: string) => void;
 }
 
@@ -17,6 +18,7 @@ export const EventActions = ({
   isCameloEvent,
   venue,
   icalLink,
+  date,
   handleAddToCalendar,
 }: EventActionsProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -26,15 +28,19 @@ export const EventActions = ({
       setIsDownloading(true);
       toast.loading("Adding event to calendar...");
       
-      console.log('Downloading calendar file for:', venue);
+      console.log('Downloading calendar file for:', venue, 'on date:', date);
       const response = await fetch(icalLink);
       const icalData = await response.text();
       
       // Parse the iCal data to get individual events
       const events = icalData.split('BEGIN:VEVENT');
       
-      // Find the event that matches the venue
-      const targetEvent = events.find(event => event.includes(`SUMMARY:${venue}`));
+      // Find the event that matches both venue and date
+      const targetEvent = events.find(event => {
+        const matchesVenue = event.includes(`SUMMARY:${venue}`);
+        const matchesDate = event.includes(date.split(' ')[2]); // Match the year
+        return matchesVenue && matchesDate;
+      });
       
       if (!targetEvent) {
         console.error('Event not found in calendar data');

@@ -89,6 +89,7 @@ export const EventCard = ({
           isCameloEvent={isCameloEvent}
           venue={venue}
           icalLink={icalLink}
+          date={date}
           handleAddToCalendar={handleAddToCalendar}
         >
           {type === "packages" ? (
