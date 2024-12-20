@@ -49,7 +49,7 @@ export const Events = () => {
     if (icalData) {
       console.log('Processing iCal data...');
       try {
-        const parsedEvents = parseICalEvents(icalData);
+        const parsedEvents = parseICalEvents(icalData, ICAL_URL);
         console.log('Parsed events:', parsedEvents);
         if (parsedEvents.length > 0) {
           setEvents(parsedEvents);

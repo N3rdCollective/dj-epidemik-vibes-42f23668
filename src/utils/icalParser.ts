@@ -1,28 +1,51 @@
 import ICAL from 'ical';
 
-export const parseICalEvents = (icalData: string) => {
-  const events = ICAL.parseICS(icalData);
-  return Object.values(events).map((event: any) => {
-    if (event.type !== 'VEVENT') return null;
+interface ICalEvent {
+  date: string;
+  venue: string;
+  location: string;
+  time: string;
+  type: "packages" | "rsvp";
+  packages?: {
+    name: string;
+    price: number;
+    description: string;
+  }[];
+  icalLink: string;
+}
 
-    const startDate = new Date(event.start);
-    const month = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-    const day = startDate.getDate().toString().padStart(2, '0');
-    
-    return {
-      date: `${month} ${day}`,
-      venue: event.summary || 'TBA',
-      location: event.location || 'TBA',
-      time: `${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')} - ${new Date(event.end).getHours()}:${new Date(event.end).getMinutes().toString().padStart(2, '0')}`,
-      type: "packages", // Default to packages, you might want to adjust this based on your needs
-      packages: [
-        { 
-          name: "General Admission", 
-          price: 30,
-          description: "Basic entry to the event"
-        }
-      ],
-      icalLink: ICAL_URL
-    };
-  }).filter(Boolean);
+export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] => {
+  console.log('Parsing iCal data:', icalData);
+  const events = ICAL.parseICS(icalData);
+  console.log('Parsed events:', events);
+  
+  return Object.values(events)
+    .filter((event: any) => event.type === 'VEVENT')
+    .map((event: any): ICalEvent => {
+      const startDate = new Date(event.start);
+      const endDate = new Date(event.end);
+      const month = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+      const day = startDate.getDate().toString().padStart(2, '0');
+      
+      return {
+        date: `${month} ${day}`,
+        venue: event.summary || 'TBA',
+        location: event.location || 'TBA',
+        time: `${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')} - ${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`,
+        type: "packages",
+        packages: [
+          { 
+            name: "General Admission", 
+            price: 30,
+            description: "Basic entry to the event"
+          },
+          {
+            name: "VIP Access",
+            price: 75,
+            description: "Premium entry with VIP area access"
+          }
+        ],
+        icalLink: icalUrl
+      };
+    });
 };
