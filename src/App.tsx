@@ -9,6 +9,7 @@ import { Auth } from "@/components/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import EventManagement from "./pages/EventManagement";
 import RsvpManagement from "./pages/RsvpManagement";
+import ProductManagement from "./pages/ProductManagement";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/events" element={<EventManagement />} />
             <Route path="/admin/rsvps" element={<RsvpManagement />} />
+            <Route path="/admin/products" element={<ProductManagement />} />
             <Route path="/" element={<Index />} />
           </Routes>
         </BrowserRouter>
