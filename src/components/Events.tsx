@@ -26,18 +26,42 @@ export const Events = () => {
 
   // Process events to handle next-day end times
   const processedEvents = events.map(event => {
-    const startTime = parseISO(event.time.split(' - ')[0]);
-    let endTime = parseISO(event.time.split(' - ')[1]);
-    
-    // If end time is before start time, it means it's the next day
-    if (isAfter(startTime, endTime)) {
-      endTime = addDays(endTime, 1);
+    try {
+      console.log('Processing event time:', event.time);
+      const [startTimeStr, endTimeStr] = event.time.split(' - ');
+      
+      // Convert time strings to ISO format for parsing
+      const startDate = new Date();
+      const endDate = new Date();
+      
+      const [startHour, startMinute, startPeriod] = startTimeStr.match(/(\d+):(\d+)\s*(AM|PM)/i).slice(1);
+      const [endHour, endMinute, endPeriod] = endTimeStr.match(/(\d+):(\d+)\s*(AM|PM)/i).slice(1);
+      
+      // Convert to 24-hour format
+      let start24Hour = parseInt(startHour);
+      if (startPeriod.toUpperCase() === 'PM' && start24Hour !== 12) start24Hour += 12;
+      if (startPeriod.toUpperCase() === 'AM' && start24Hour === 12) start24Hour = 0;
+      
+      let end24Hour = parseInt(endHour);
+      if (endPeriod.toUpperCase() === 'PM' && end24Hour !== 12) end24Hour += 12;
+      if (endPeriod.toUpperCase() === 'AM' && end24Hour === 12) end24Hour = 0;
+      
+      startDate.setHours(start24Hour, parseInt(startMinute), 0);
+      endDate.setHours(end24Hour, parseInt(endMinute), 0);
+      
+      // If end time is before start time, it means it's the next day
+      if (endDate < startDate) {
+        endDate.setDate(endDate.getDate() + 1);
+      }
+      
+      return {
+        ...event,
+        time: `${format(startDate, 'h:mm a')} - ${format(endDate, 'h:mm a')}`,
+      };
+    } catch (error) {
+      console.error('Error processing event time:', error, event);
+      return event; // Return original event if parsing fails
     }
-
-    return {
-      ...event,
-      time: `${format(startTime, 'h:mm a')} - ${format(endTime, 'h:mm a')}`,
-    };
   });
 
   const groupedEvents = groupEventsByMonth(processedEvents);
