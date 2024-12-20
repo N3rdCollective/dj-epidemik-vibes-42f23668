@@ -31,9 +31,11 @@ export const Hero = () => {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
-            DJ EPIDEMIK
-          </h1>
+          <img 
+            src="/dj-epidemik-logo.png" 
+            alt="DJ EPIDEMIK"
+            className="w-[500px] md:w-[700px] mx-auto mb-6 filter brightness-200"
+          />
           <p className="text-xl md:text-2xl text-gray-300 mb-8">
             Experience the Epidemic of Sound
           </p>
