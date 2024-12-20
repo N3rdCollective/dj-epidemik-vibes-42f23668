@@ -11,6 +11,7 @@ import { BasicEventFields } from "./form/BasicEventFields";
 import { DateTimeFields } from "./form/DateTimeFields";
 import { EventTypeField } from "./form/EventTypeField";
 import { EventFormValues, Package } from "./types/eventTypes";
+import { parseISO, isAfter, addDays } from "date-fns";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -60,14 +61,20 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
     if (event) {
       console.log('Setting form values for event:', event);
       const startTime = new Date(event.start_time).toISOString().slice(0, 16);
-      const endTime = new Date(event.end_time).toISOString().slice(0, 16);
+      let endTime = new Date(event.end_time);
+      
+      // Check if this is a next-day event
+      const startDate = new Date(event.start_time);
+      if (isAfter(startDate, endTime)) {
+        endTime = addDays(endTime, -1); // Adjust back one day for form display
+      }
       
       form.reset({
         title: event.title,
         venue: event.venue,
         location: event.location,
         start_time: startTime,
-        end_time: endTime,
+        end_time: endTime.toISOString().slice(0, 16),
         type: event.type,
         packages: event.packages || [],
       });
@@ -76,6 +83,14 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
 
   const onSubmit = async (values: EventFormValues) => {
     console.log('Submitting event:', values);
+    
+    let startTime = parseISO(values.start_time);
+    let endTime = parseISO(values.end_time);
+    
+    // If end time is before start time, it means it's the next day
+    if (isAfter(startTime, endTime)) {
+      endTime = addDays(endTime, 1);
+    }
     
     // Convert packages to a format that matches the Json type
     const packagesJson = values.packages?.map(pkg => ({
@@ -88,8 +103,8 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
       title: values.title,
       venue: values.venue,
       location: values.location,
-      start_time: values.start_time,
-      end_time: values.end_time,
+      start_time: startTime.toISOString(),
+      end_time: endTime.toISOString(),
       type: values.type,
       packages: packagesJson as Database['public']['Tables']['events']['Insert']['packages'],
       is_imported: false,
