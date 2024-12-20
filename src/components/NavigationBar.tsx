@@ -10,14 +10,22 @@ export const NavigationBar = () => {
     await supabase.auth.signOut();
   };
 
+  const scrollToLogo = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const logoSection = document.querySelector('.logo-section');
+    if (logoSection) {
+      logoSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className="bg-black/50 backdrop-blur-sm sticky top-0 w-full z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex space-x-8">
-            <Link to="/" className="text-white hover:text-primary">
+            <a href="/" onClick={scrollToLogo} className="text-white hover:text-primary">
               Home
-            </Link>
+            </a>
             <a href="#about" className="text-white hover:text-primary">
               About
             </a>
