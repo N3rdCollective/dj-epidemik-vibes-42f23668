@@ -6,8 +6,8 @@ export const ParallaxDivider = () => {
   return (
     <Parallax
       blur={0}
-      bgImage="lovable-uploads/0b08b6c6-1dcd-483a-a35c-fc138e511e00.png"
-      bgImageAlt="DJ EPIDEMIK performing"
+      bgImage="lovable-uploads/3c4e9ce6-c793-4f96-b6fa-a9bde6ea6c8c.png"
+      bgImageAlt="DJ EPIDEMIK portrait"
       strength={200}
       className="h-screen relative" // Changed from h-[60vh] to h-screen for full height
     >
