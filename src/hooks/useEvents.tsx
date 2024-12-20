@@ -105,6 +105,8 @@ export const useEvents = () => {
         console.log('Parsed Camelo events:', parsedEvents);
         return parsedEvents.map(event => ({
           ...event,
+          // Clean up venue name by removing the prefix
+          venue: event.venue.replace('DJ  Epidemik . | DJ @ ', ''),
           isCameloEvent: true
         }));
       } catch (error) {
