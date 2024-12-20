@@ -12,9 +12,7 @@ const Index = () => {
   return (
     <div className="bg-[#0A0A0A] min-h-screen">
       <Hero />
-      <div className="sticky top-0 z-50">
-        <NavigationBar />
-      </div>
+      <NavigationBar />
       <LogoSection />
       <About />
       <ParallaxDivider />
