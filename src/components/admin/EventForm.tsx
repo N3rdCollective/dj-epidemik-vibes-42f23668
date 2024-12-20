@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 import { useEffect } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -16,6 +17,11 @@ const eventFormSchema = z.object({
   start_time: z.string().min(1, "Start time is required"),
   end_time: z.string().min(1, "End time is required"),
   type: z.string().min(1, "Type is required"),
+  packages: z.array(z.object({
+    name: z.string(),
+    price: z.number(),
+    description: z.string()
+  })).optional(),
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -32,6 +38,11 @@ interface EventFormProps {
     start_time: string;
     end_time: string;
     type: string;
+    packages?: {
+      name: string;
+      price: number;
+      description: string;
+    }[];
   };
 }
 
@@ -45,11 +56,13 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
       start_time: "",
       end_time: "",
       type: "packages",
+      packages: [],
     },
   });
 
   useEffect(() => {
     if (event) {
+      console.log('Setting form values for event:', event);
       // Format the date-time string to match the input format
       const startTime = new Date(event.start_time).toISOString().slice(0, 16);
       const endTime = new Date(event.end_time).toISOString().slice(0, 16);
@@ -61,6 +74,7 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
         start_time: startTime,
         end_time: endTime,
         type: event.type,
+        packages: event.packages || [],
       });
     }
   }, [event, form]);
@@ -75,18 +89,21 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
       start_time: values.start_time,
       end_time: values.end_time,
       type: values.type,
+      packages: values.packages,
+      is_imported: false,
+      is_live: true,
     };
 
     let error;
     if (event?.id) {
-      // Update existing event
+      console.log('Updating existing event:', event.id);
       const { error: updateError } = await supabase
         .from('events')
         .update(eventData)
         .eq('id', event.id);
       error = updateError;
     } else {
-      // Create new event
+      console.log('Creating new event');
       const { error: insertError } = await supabase
         .from('events')
         .insert(eventData);
@@ -172,7 +189,30 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit">{event?.id ? 'Update Event' : 'Create Event'}</Button>
+        <FormField
+          control={form.control}
+          name="type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select event type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="packages">Packages</SelectItem>
+                  <SelectItem value="rsvp">RSVP</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full">
+          {event?.id ? 'Update Event' : 'Create Event'}
+        </Button>
       </form>
     </Form>
   );
