@@ -4,6 +4,7 @@ import { EventCard } from "./EventCard";
 import { MonthGroup } from "./MonthGroup";
 import { Button } from "./ui/button";
 import { groupEventsByMonth, getCurrentMonthYear, sortMonthYears } from "@/utils/eventGrouping";
+import { format, isAfter, parseISO, addDays } from "date-fns";
 
 export const Events = () => {
   const [selectedPackage, setSelectedPackage] = useState("");
@@ -23,7 +24,23 @@ export const Events = () => {
     );
   }
 
-  const groupedEvents = groupEventsByMonth(events);
+  // Process events to handle next-day end times
+  const processedEvents = events.map(event => {
+    const startTime = parseISO(event.time.split(' - ')[0]);
+    let endTime = parseISO(event.time.split(' - ')[1]);
+    
+    // If end time is before start time, it means it's the next day
+    if (isAfter(startTime, endTime)) {
+      endTime = addDays(endTime, 1);
+    }
+
+    return {
+      ...event,
+      time: `${format(startTime, 'h:mm a')} - ${format(endTime, 'h:mm a')}`,
+    };
+  });
+
+  const groupedEvents = groupEventsByMonth(processedEvents);
   const currentMonthYear = getCurrentMonthYear();
   const sortedMonthYears = sortMonthYears(Object.keys(groupedEvents));
   
