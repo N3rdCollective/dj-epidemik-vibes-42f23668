@@ -21,6 +21,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Log the API key length to help debug (without exposing the key)
+    console.log('API Key status:', RESEND_API_KEY ? `Present (length: ${RESEND_API_KEY.length})` : 'Missing');
+
     if (!RESEND_API_KEY) {
       console.error('RESEND_API_KEY environment variable is not set');
       throw new Error('Email service is not configured properly');
