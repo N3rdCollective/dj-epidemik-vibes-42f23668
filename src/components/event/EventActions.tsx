@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
+import { toast } from "sonner";
 
 interface EventActionsProps {
   children: ReactNode;
@@ -18,8 +19,13 @@ export const EventActions = ({
   icalLink,
   handleAddToCalendar,
 }: EventActionsProps) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const downloadCalendarFile = async (icalLink: string, venue: string) => {
     try {
+      setIsDownloading(true);
+      toast.loading("Adding event to calendar...");
+      
       console.log('Downloading calendar file for:', venue);
       const response = await fetch(icalLink);
       const icalData = await response.text();
@@ -32,6 +38,7 @@ export const EventActions = ({
       
       if (!targetEvent) {
         console.error('Event not found in calendar data');
+        toast.error('Could not find the event in calendar data');
         return;
       }
       
@@ -55,8 +62,12 @@ export const EventActions = ({
       window.URL.revokeObjectURL(url);
       
       console.log('Calendar file downloaded successfully');
+      toast.success('Event added to calendar successfully!');
     } catch (error) {
       console.error('Error downloading calendar file:', error);
+      toast.error('Failed to add event to calendar');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -67,8 +78,9 @@ export const EventActions = ({
         onClick={() => downloadCalendarFile(icalLink, venue)}
         variant="outline"
         className="px-4 whitespace-nowrap"
+        disabled={isDownloading}
       >
-        Add to Calendar
+        {isDownloading ? "Adding..." : "Add to Calendar"}
       </Button>
     </div>
   );
