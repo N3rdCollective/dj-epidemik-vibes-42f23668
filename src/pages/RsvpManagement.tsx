@@ -25,11 +25,17 @@ const RsvpManagement = () => {
   return (
     <div className="container mx-auto px-4 py-8 mt-16">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">RSVP Management</h1>
-        <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
+        <h1 className="text-4xl font-bold text-foreground">RSVP Management</h1>
+        <Button 
+          variant="outline"
+          className="border-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+          onClick={handleBackToDashboard}
+        >
+          Back to Dashboard
+        </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-muted rounded-lg shadow-lg p-6 border border-border">
         <RsvpsTable />
       </div>
     </div>
