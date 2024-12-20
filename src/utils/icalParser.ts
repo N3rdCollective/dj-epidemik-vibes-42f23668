@@ -53,5 +53,11 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
         ],
         icalLink: icalUrl
       };
+    })
+    .sort((a: ICalEvent, b: ICalEvent) => {
+      // Convert date strings back to Date objects for comparison
+      const dateA = new Date(`${a.date} ${new Date().getFullYear()}`);
+      const dateB = new Date(`${b.date} ${new Date().getFullYear()}`);
+      return dateA.getTime() - dateB.getTime();
     });
 };
