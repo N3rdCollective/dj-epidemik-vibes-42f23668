@@ -2,8 +2,21 @@ import { motion } from "framer-motion";
 
 export const LogoSection = () => {
   return (
-    <section className="py-20 bg-[#0A0A0A]">
-      <div className="container mx-auto px-4">
+    <section className="py-20 relative">
+      {/* Background image */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('lovable-uploads/59295d77-963d-400f-9d68-d5426921442d.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          filter: 'brightness(0.5)', // Darken the background to maintain text readability
+        }}
+      />
+      
+      {/* Content overlay */}
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
