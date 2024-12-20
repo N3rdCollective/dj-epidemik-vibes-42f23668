@@ -28,6 +28,10 @@ const AdminDashboard = () => {
     navigate('/admin/rsvps');
   };
 
+  const handleNavigateToProducts = () => {
+    navigate('/admin/products');
+  };
+
   if (!user || !isAdmin) return null;
 
   return (
@@ -51,6 +55,11 @@ const AdminDashboard = () => {
           <h2 className="text-2xl font-semibold mb-4">RSVP Management</h2>
           <p className="text-gray-600 mb-4">View and manage event RSVPs</p>
           <Button>View RSVPs</Button>
+        </Card>
+        <Card className="p-6 cursor-pointer" onClick={handleNavigateToProducts}>
+          <h2 className="text-2xl font-semibold mb-4">Product Management</h2>
+          <p className="text-gray-600 mb-4">Create and manage Stripe products</p>
+          <Button>Manage Products</Button>
         </Card>
       </div>
     </div>
