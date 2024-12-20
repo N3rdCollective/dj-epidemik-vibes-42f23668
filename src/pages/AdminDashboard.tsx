@@ -4,8 +4,6 @@ import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -18,24 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
-
-interface Event {
-  id: string;
-  title: string;
-  venue: string;
-  location: string;
-  start_time: string;
-  end_time: string;
-  is_live: boolean;
-  type: "packages" | "rsvp";
-  packages?: {
-    name: string;
-    price: number;
-    description: string;
-  }[];
-  ical_uid?: string;
-  is_imported: boolean;
-}
+import type { Event } from "@/types/event";
 
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
