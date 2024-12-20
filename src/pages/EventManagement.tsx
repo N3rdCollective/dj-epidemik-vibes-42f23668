@@ -77,14 +77,27 @@ const EventManagement = () => {
   if (!user || !isAdmin) return null;
 
   // Combine and format both database and Camelo events
-  const allEvents = [
-    ...(dbEvents || []),
+  const allEvents: Event[] = [
+    ...(dbEvents || []).map(event => ({
+      id: event.id,
+      title: event.title,
+      venue: event.venue,
+      location: event.location,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      type: event.type,
+      packages: event.packages,
+      is_imported: event.is_imported,
+      is_live: event.is_live
+    })),
     ...cameloEvents.map(event => ({
       id: event.icalLink,
       title: `${event.venue} Event`,
       venue: event.venue,
       location: event.location,
       start_time: new Date(event.date).toISOString(),
+      end_time: new Date(event.date).toISOString(), // Since Camelo events don't have end_time, we use the same as start_time
+      type: event.type,
       is_imported: true,
       is_live: true // Camelo events are always live
     }))
