@@ -151,8 +151,15 @@ export const useEvents = () => {
     events = [...events, ...dbEvents];
   }
 
+  // Sort events by date
+  const sortedEvents = events.length > 0 ? events.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateA.getTime() - dateB.getTime();
+  }) : defaultEvents;
+
   return {
-    events: events.length > 0 ? events : defaultEvents,
+    events: sortedEvents,
     isLoading: isIcalLoading || isDbLoading,
   };
 };
