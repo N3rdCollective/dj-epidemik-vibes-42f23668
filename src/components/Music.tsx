@@ -14,7 +14,7 @@ interface MixcloudTrack {
 
 export const Music = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const username = 'djepidemikmixes';
+  const username = 'djepidemik';
 
   const fetchMixes = async () => {
     console.log('Fetching mixes for:', username);
