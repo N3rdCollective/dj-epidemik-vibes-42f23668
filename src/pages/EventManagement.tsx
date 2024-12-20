@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 
 const EventManagement = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [dbEvents, setDbEvents] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -22,24 +22,25 @@ const EventManagement = () => {
     }
   }, [user, isAdmin, navigate]);
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+  const { data: events, refetch } = useQuery({
+    queryKey: ['admin-events'],
+    queryFn: async () => {
+      console.log('Fetching all events for admin...');
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('start_time', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching events:', error);
+        toast.error('Failed to load events');
+        throw error;
+      }
 
-  const fetchEvents = async () => {
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('start_time', { ascending: true });
-    
-    if (error) {
-      console.error('Error fetching events:', error);
-      toast.error('Failed to load events');
-      return;
-    }
-
-    setDbEvents(data || []);
-  };
+      console.log('Fetched events:', data);
+      return data || [];
+    },
+  });
 
   const toggleEventVisibility = async (eventId: string, currentStatus: boolean) => {
     const { error } = await supabase
@@ -54,7 +55,7 @@ const EventManagement = () => {
     }
 
     toast.success('Event visibility updated');
-    fetchEvents();
+    refetch();
   };
 
   const handleBackToDashboard = () => {
@@ -84,7 +85,7 @@ const EventManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dbEvents.map((event) => (
+              {events?.map((event) => (
                 <TableRow key={event.id}>
                   <TableCell>{event.title}</TableCell>
                   <TableCell>
