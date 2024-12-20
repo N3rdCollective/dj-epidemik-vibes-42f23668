@@ -18,9 +18,15 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
   console.log('Parsing iCal data:', icalData);
   const events = ICAL.parseICS(icalData);
   console.log('Parsed events:', events);
+  const now = new Date();
   
   return Object.values(events)
-    .filter((event: any) => event.type === 'VEVENT')
+    .filter((event: any) => {
+      // Filter for VEVENT type and future dates only
+      if (event.type !== 'VEVENT') return false;
+      const eventStart = new Date(event.start);
+      return eventStart >= now;
+    })
     .map((event: any): ICalEvent => {
       const startDate = new Date(event.start);
       const endDate = new Date(event.end);
