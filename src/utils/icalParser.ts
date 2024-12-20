@@ -1,6 +1,6 @@
 import ICAL from 'ical';
 
-export interface ICalEvent {
+interface ICalEvent {
   date: string;
   venue: string;
   location: string;
