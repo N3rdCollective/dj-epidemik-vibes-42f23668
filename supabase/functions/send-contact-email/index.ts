@@ -29,24 +29,28 @@ const handler = async (req: Request): Promise<Response> => {
     const formData: ContactFormData = await req.json()
     console.log('Received contact form submission:', formData)
 
+    const emailData = {
+      from: 'DJ Epidemik Website <onboarding@resend.dev>',
+      to: ['info@djepidemik.com'],
+      subject: `New Contact Form Submission: ${formData.subject}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>From:</strong> ${formData.name} (${formData.email})</p>
+        <p><strong>Subject:</strong> ${formData.subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${formData.message}</p>
+      `,
+    };
+
+    console.log('Sending email with data:', emailData);
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: 'DJ Epidemik Website <onboarding@resend.dev>',
-        to: ['info@djepidemik.com'],
-        subject: `New Contact Form Submission: ${formData.subject}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>From:</strong> ${formData.name} (${formData.email})</p>
-          <p><strong>Subject:</strong> ${formData.subject}</p>
-          <p><strong>Message:</strong></p>
-          <p>${formData.message}</p>
-        `,
-      }),
+      body: JSON.stringify(emailData),
     })
 
     const responseData = await res.json()
@@ -64,7 +68,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error) {
     console.error('Error in send-contact-email function:', error)
     return new Response(
-      JSON.stringify({ error: error.message || 'Failed to send email' }),
+      JSON.stringify({ 
+        error: error.message || 'Failed to send email',
+        details: error instanceof Error ? error.stack : undefined
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
