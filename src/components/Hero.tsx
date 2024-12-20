@@ -4,7 +4,7 @@ import { useEffect } from "react";
 export const Hero = () => {
   useEffect(() => {
     const img = new Image();
-    img.src = "/public/dj-epidemik-logo.png";
+    img.src = "dj-epidemik-logo.png";
     img.onload = () => console.log("Image loaded successfully");
     img.onerror = (e) => console.error("Error loading image:", e);
   }, []);
@@ -40,7 +40,7 @@ export const Hero = () => {
           className="text-center"
         >
           <img 
-            src="/public/dj-epidemik-logo.png" 
+            src="dj-epidemik-logo.png" 
             alt="DJ EPIDEMIK"
             className="w-[500px] md:w-[700px] mx-auto mb-6 filter brightness-200"
             onError={(e) => console.error("Image failed to load:", e)}
