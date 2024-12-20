@@ -62,16 +62,17 @@ export const EventCard = ({
 
   return (
     <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-700">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="text-3xl font-bold text-primary animate-float">
           {date}
         </div>
-        <div className="text-center md:text-left">
+        <div className="text-center md:text-left flex-1">
           <h3 className="text-2xl font-semibold text-white mb-1">{venue}</h3>
           <p className="text-gray-400">{location}</p>
         </div>
-        <div className="text-gray-300 font-medium">{time}</div>
-        
+        <div className="text-gray-300 font-medium whitespace-nowrap">
+          {time}
+        </div>
         <div className="flex gap-2">
           {!isCameloEvent && (
             type === "packages" ? (
@@ -127,7 +128,7 @@ export const EventCard = ({
           <Button
             onClick={() => handleAddToCalendar(icalLink, venue)}
             variant="outline"
-            className="px-4"
+            className="px-4 whitespace-nowrap"
           >
             Add to Calendar
           </Button>
