@@ -64,10 +64,10 @@ export const useEvents = () => {
           minute: 'numeric'
         })}`,
         type: event.type as "packages" | "rsvp",
-        packages: event.packages,
+        packages: Array.isArray(event.packages) ? event.packages : undefined,
         icalLink: ICAL_URL,
         isCameloEvent: event.is_imported
-      }));
+      })) as ICalEvent[];
     },
   });
 

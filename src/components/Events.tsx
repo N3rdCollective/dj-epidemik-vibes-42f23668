@@ -9,7 +9,7 @@ export const Events = () => {
   const [selectedPackage, setSelectedPackage] = useState("");
   const [showAllMonths, setShowAllMonths] = useState(false);
   
-  const { events, isLoading, error } = useEvents();
+  const { events, isLoading } = useEvents();
 
   if (isLoading) {
     return (
