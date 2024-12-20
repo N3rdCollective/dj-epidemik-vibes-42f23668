@@ -33,7 +33,12 @@ export const NavigationBar = () => {
           </div>
           <div className="flex items-center space-x-4">
             {isAdmin && (
-              <span className="text-primary text-sm">Admin Access</span>
+              <>
+                <span className="text-primary text-sm">Admin Access</span>
+                <Link to="/admin" className="text-white hover:text-primary">
+                  Dashboard
+                </Link>
+              </>
             )}
             {user ? (
               <Button

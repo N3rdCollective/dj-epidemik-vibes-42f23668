@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
 import { Auth } from "@/components/Auth";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Auth />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/" element={<Index />} />
           </Routes>
         </BrowserRouter>
