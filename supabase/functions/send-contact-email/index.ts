@@ -21,15 +21,15 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Log the API key status (without exposing the actual key)
-    const apiKeyStatus = RESEND_API_KEY ? 
-      `Present (length: ${RESEND_API_KEY.length}, starts with: ${RESEND_API_KEY.substring(0, 3)}...)` : 
-      'Missing';
-    console.log('API Key status:', apiKeyStatus);
-
+    console.log('Checking Resend API key configuration...');
     if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY environment variable is not set');
-      throw new Error('Email service is not configured properly');
+      console.error('RESEND_API_KEY is not set in environment variables');
+      throw new Error('Email service configuration is missing. Please set the RESEND_API_KEY in Edge Function secrets.');
+    }
+
+    if (!RESEND_API_KEY.startsWith('re_')) {
+      console.error('Invalid Resend API key format');
+      throw new Error('Invalid API key format. Please ensure you\'ve copied the correct Resend API key.');
     }
 
     const formData: ContactFormData = await req.json()
@@ -37,8 +37,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailData = {
       from: 'DJ Epidemik <thedjepidemik@gmail.com>',
-      to: ['thedjepidemik@gmail.com'], // Send all emails to the verified address for now
-      reply_to: formData.email, // Add reply-to so you can reply directly to the sender
+      to: ['thedjepidemik@gmail.com'],
+      reply_to: formData.email,
       subject: `New Contact Form Submission: ${formData.subject}`,
       html: `
         <h2>New Contact Form Submission</h2>
@@ -75,12 +75,11 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error) {
     console.error('Error in send-contact-email function:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-    const errorDetails = error instanceof Error ? error.stack : undefined
     
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
-        details: errorDetails,
+        details: error instanceof Error ? error.stack : undefined,
         tip: 'Please verify that the Resend API key is correctly set in the Edge Function secrets'
       }),
       {
