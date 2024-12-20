@@ -1,19 +1,10 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { parseICalEvents } from "@/utils/icalParser";
+import { EventCard } from "./EventCard";
+import { MonthGroup } from "./MonthGroup";
 
 const ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=b1V4c2N4ck9RODAxWmZ6Q25MWT0tLXJ0c2dleFRqM3hjWSs5bDItLUpmd00wYS9hRzBMTEFQVDZTU0hoeHc9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
 
@@ -122,24 +113,6 @@ export const Events = () => {
     },
   ];
 
-  const handleRSVP = () => {
-    toast.success("RSVP Confirmed! See you at the event!");
-  };
-
-  const handleTicketPurchase = (eventName: string) => {
-    if (!selectedPackage) {
-      toast.error("Please select a ticket package");
-      return;
-    }
-    toast.success(`Ticket purchase initiated for ${eventName} - ${selectedPackage}`);
-    setSelectedPackage("");
-  };
-
-  const handleAddToCalendar = (icalLink: string, eventName: string) => {
-    window.open(icalLink, '_blank');
-    toast.success(`Added ${eventName} to your calendar!`);
-  };
-
   if (isLoading) {
     return (
       <section className="py-20 bg-[#0A0A0A]" id="events">
@@ -159,88 +132,34 @@ export const Events = () => {
 
   const displayEvents = events.length > 0 ? events : defaultEvents;
 
+  // Group events by month
+  const groupedEvents = displayEvents.reduce((groups: { [key: string]: ICalEvent[] }, event) => {
+    const month = event.date.split(' ')[0];
+    if (!groups[month]) {
+      groups[month] = [];
+    }
+    groups[month].push(event);
+    return groups;
+  }, {});
+
   return (
     <section className="py-20 bg-[#0A0A0A]" id="events">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-white text-center mb-12">
           Upcoming Events
         </h2>
-        <div className="max-w-4xl mx-auto space-y-6">
-          {displayEvents.map((event, index) => (
-            <div
-              key={index}
-              className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-700"
-            >
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-3xl font-bold text-primary animate-float">
-                  {event.date}
-                </div>
-                <div className="text-center md:text-left">
-                  <h3 className="text-2xl font-semibold text-white mb-1">{event.venue}</h3>
-                  <p className="text-gray-400">{event.location}</p>
-                </div>
-                <div className="text-gray-300 font-medium">{event.time}</div>
-                
-                <div className="flex gap-2">
-                  {event.type === "packages" ? (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
-                          Get Tickets
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Select Ticket Package</DialogTitle>
-                          <DialogDescription>
-                            Choose your preferred ticket package for {event.venue}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <RadioGroup
-                            value={selectedPackage}
-                            onValueChange={setSelectedPackage}
-                          >
-                            {event.packages?.map((pkg, idx) => (
-                              <div key={idx} className="flex flex-col space-y-2 border border-gray-200 rounded-lg p-4">
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value={pkg.name} id={`${pkg.name}-${idx}`} />
-                                  <Label htmlFor={`${pkg.name}-${idx}`} className="flex justify-between w-full">
-                                    <span>{pkg.name}</span>
-                                    <span className="text-primary font-bold">${pkg.price}</span>
-                                  </Label>
-                                </div>
-                                <p className="text-sm text-gray-500 ml-6">{pkg.description}</p>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                          <Button 
-                            onClick={() => handleTicketPurchase(event.venue)}
-                            className="w-full mt-4"
-                          >
-                            Purchase Tickets
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  ) : (
-                    <Button 
-                      onClick={handleRSVP}
-                      className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
-                    >
-                      RSVP Now
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => handleAddToCalendar(event.icalLink, event.venue)}
-                    variant="outline"
-                    className="px-4"
-                  >
-                    Add to Calendar
-                  </Button>
-                </div>
-              </div>
-            </div>
+        <div className="max-w-4xl mx-auto">
+          {Object.entries(groupedEvents).map(([month, monthEvents]) => (
+            <MonthGroup key={month} month={month}>
+              {monthEvents.map((event, index) => (
+                <EventCard
+                  key={index}
+                  {...event}
+                  selectedPackage={selectedPackage}
+                  setSelectedPackage={setSelectedPackage}
+                />
+              ))}
+            </MonthGroup>
           ))}
         </div>
       </div>
