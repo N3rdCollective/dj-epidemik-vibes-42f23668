@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 
 export interface ICalEvent {
-  id: string; // Add this line
+  id: string;
   date: string;
   venue: string;
   location: string;
@@ -69,6 +69,7 @@ export const useEvents = () => {
         }
 
         return {
+          id: event.id,
           date: new Date(event.start_time).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -106,6 +107,8 @@ export const useEvents = () => {
         console.log('Parsed Camelo events:', parsedEvents);
         return parsedEvents.map(event => ({
           ...event,
+          // For Camelo events, use icalUid as id if available, otherwise generate one
+          id: event.icalUid || crypto.randomUUID(),
           // Clean up venue name by removing the prefix
           venue: event.venue.replace('DJ  Epidemik . | DJ @ ', ''),
           isCameloEvent: true
