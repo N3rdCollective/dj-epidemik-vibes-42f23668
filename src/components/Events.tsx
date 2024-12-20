@@ -84,6 +84,7 @@ export const Events = () => {
               {groupedEvents[monthYear].map((event, index) => (
                 <EventCard
                   key={index}
+                  id={event.id} // Pass the event id
                   {...event}
                   selectedPackage={selectedPackage}
                   setSelectedPackage={setSelectedPackage}
