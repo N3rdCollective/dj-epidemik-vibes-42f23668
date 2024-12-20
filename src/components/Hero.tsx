@@ -29,7 +29,7 @@ export const Hero = () => {
       <div className="absolute bottom-8 left-0 right-0 flex justify-center">
         <button 
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-          className="bg-primary/20 backdrop-blur-sm text-white font-noto font-bold hover:bg-primary/60 px-8 py-3 rounded-full text-lg transition-colors animate-float border border-primary/50 hover:border-primary"
+          className="bg-primary/20 backdrop-blur-sm text-white font-noto font-bold hover:bg-[#FFD700] hover:text-black px-8 py-3 rounded-full text-lg transition-colors animate-float border border-primary/50 hover:border-primary"
         >
           Continue to Site
         </button>
