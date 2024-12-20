@@ -56,10 +56,10 @@ export const Music = () => {
     return (
       <section className="py-20 bg-[#0A0A0A]" id="music">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white text-center mb-12">
+          <h2 className="text-4xl font-bold text-primary text-center mb-12">
             Latest Mixes
           </h2>
-          <div className="text-white text-center">Error loading mixes. Please try again later.</div>
+          <div className="text-primary text-center">Error loading mixes. Please try again later.</div>
         </div>
       </section>
     );
@@ -68,12 +68,12 @@ export const Music = () => {
   return (
     <section className="py-20 bg-[#0A0A0A]" id="music">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-white text-center mb-12">
+        <h2 className="text-4xl font-bold text-primary text-center mb-12">
           Latest Mixes
         </h2>
         
         {isLoading || !mixes ? (
-          <div className="text-white text-center">Loading mixes...</div>
+          <div className="text-primary text-center">Loading mixes...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {mixes.map((mix: MixcloudTrack) => (
@@ -82,15 +82,15 @@ export const Music = () => {
                 href={mix.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="block transition-transform hover:scale-105"
+                className="block transition-transform hover:scale-105 group"
               >
                 <img 
                   src={mix.pictures.large} 
                   alt={mix.name}
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
-                <h3 className="text-white mt-4 text-lg font-semibold">{mix.name}</h3>
-                <p className="text-gray-400 text-sm">
+                <h3 className="text-primary mt-4 text-lg font-semibold group-hover:text-primary/80">{mix.name}</h3>
+                <p className="text-primary/70 text-sm">
                   {new Date(mix.created_time).toLocaleDateString()}
                 </p>
               </a>
