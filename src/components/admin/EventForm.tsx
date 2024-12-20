@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { BasicEventFields } from "./form/BasicEventFields";
 import { DateTimeFields } from "./form/DateTimeFields";
 import { EventTypeField } from "./form/EventTypeField";
-import { EventFormValues } from "./types/eventTypes";
+import { EventFormValues, Package } from "./types/eventTypes";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -38,11 +38,7 @@ interface EventFormProps {
     start_time: string;
     end_time: string;
     type: string;
-    packages?: {
-      name: string;
-      price: number;
-      description: string;
-    }[];
+    packages?: Package[];
   };
 }
 
@@ -81,6 +77,13 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
   const onSubmit = async (values: EventFormValues) => {
     console.log('Submitting event:', values);
     
+    // Convert packages to a format that matches the Json type
+    const packagesJson = values.packages?.map(pkg => ({
+      name: pkg.name,
+      price: pkg.price,
+      description: pkg.description
+    }));
+    
     const eventData: EventInsert = {
       title: values.title,
       venue: values.venue,
@@ -88,7 +91,7 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
       start_time: values.start_time,
       end_time: values.end_time,
       type: values.type,
-      packages: values.packages,
+      packages: packagesJson as Database['public']['Tables']['events']['Insert']['packages'],
       is_imported: false,
       is_live: true,
     };
