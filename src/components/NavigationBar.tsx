@@ -19,6 +19,13 @@ export const NavigationBar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className={`${isSticky ? 'fixed top-0 left-0 right-0 z-50' : ''} bg-black/50 backdrop-blur-sm border-y border-primary/20`}>
       <div className="container mx-auto px-4">
@@ -26,11 +33,11 @@ export const NavigationBar = () => {
           <div className="flex items-center space-x-8">
             <Navigation className="text-primary w-6 h-6" />
             <div className="hidden md:flex space-x-8">
-              <Link to="/" className="text-white hover:text-primary transition-colors">Home</Link>
-              <Link to="#about" className="text-white hover:text-primary transition-colors">About</Link>
-              <Link to="#music" className="text-white hover:text-primary transition-colors">Music</Link>
-              <Link to="#events" className="text-white hover:text-primary transition-colors">Events</Link>
-              <Link to="#contact" className="text-white hover:text-primary transition-colors">Contact</Link>
+              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white hover:text-primary transition-colors">Home</button>
+              <button onClick={() => scrollToSection('about')} className="text-white hover:text-primary transition-colors">About</button>
+              <button onClick={() => scrollToSection('music')} className="text-white hover:text-primary transition-colors">Music</button>
+              <button onClick={() => scrollToSection('events')} className="text-white hover:text-primary transition-colors">Events</button>
+              <button onClick={() => scrollToSection('contact')} className="text-white hover:text-primary transition-colors">Contact</button>
             </div>
           </div>
           <button className="md:hidden text-white">
