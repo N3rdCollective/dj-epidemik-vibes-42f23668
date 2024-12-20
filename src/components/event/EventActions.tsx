@@ -24,8 +24,23 @@ export const EventActions = ({
       const response = await fetch(icalLink);
       const icalData = await response.text();
       
-      // Create a Blob with the iCal data
-      const blob = new Blob([icalData], { type: 'text/calendar' });
+      // Parse the iCal data to get individual events
+      const events = icalData.split('BEGIN:VEVENT');
+      
+      // Find the event that matches the venue
+      const targetEvent = events.find(event => event.includes(`SUMMARY:${venue}`));
+      
+      if (!targetEvent) {
+        console.error('Event not found in calendar data');
+        return;
+      }
+      
+      // Create a new iCal file with just the header and the single event
+      const header = icalData.split('BEGIN:VEVENT')[0];
+      const singleEventIcal = `${header}BEGIN:VEVENT${targetEvent}END:VCALENDAR`;
+      
+      // Create a Blob with the single event iCal data
+      const blob = new Blob([singleEventIcal], { type: 'text/calendar' });
       const url = window.URL.createObjectURL(blob);
       
       // Create a temporary link and trigger the download
