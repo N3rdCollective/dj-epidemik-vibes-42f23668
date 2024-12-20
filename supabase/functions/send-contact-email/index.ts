@@ -32,17 +32,13 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Email service is not configured properly');
     }
 
-    if (!RESEND_API_KEY.startsWith('re_')) {
-      console.error('Invalid Resend API key format');
-      throw new Error('Invalid API key format. Resend API keys should start with "re_"');
-    }
-
     const formData: ContactFormData = await req.json()
     console.log('Received contact form submission:', formData)
 
     const emailData = {
-      from: 'DJ Epidemik Website <onboarding@resend.dev>',
-      to: ['info@djepidemik.com'],
+      from: 'DJ Epidemik <thedjepidemik@gmail.com>',
+      to: ['thedjepidemik@gmail.com'], // Send all emails to the verified address for now
+      reply_to: formData.email, // Add reply-to so you can reply directly to the sender
       subject: `New Contact Form Submission: ${formData.subject}`,
       html: `
         <h2>New Contact Form Submission</h2>
