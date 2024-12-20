@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface Package {
   name: string;
@@ -13,14 +16,50 @@ interface PackageSelectorProps {
   selectedPackage: string;
   setSelectedPackage: (value: string) => void;
   onPurchase: () => void;
+  eventId: string;
 }
 
 export const PackageSelector = ({
   packages,
   selectedPackage,
   setSelectedPackage,
-  onPurchase,
+  eventId,
 }: PackageSelectorProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePurchase = async () => {
+    if (!selectedPackage) {
+      toast.error("Please select a ticket package");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const selectedPkg = packages?.find(pkg => pkg.name === selectedPackage);
+      if (!selectedPkg) {
+        throw new Error("Selected package not found");
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          packages: [selectedPkg],
+          eventId,
+        },
+      });
+
+      if (error) throw error;
+      if (!data.url) throw new Error("No checkout URL received");
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      toast.error("Failed to initiate checkout. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="grid gap-4 py-4">
       <RadioGroup
@@ -41,10 +80,11 @@ export const PackageSelector = ({
         ))}
       </RadioGroup>
       <Button 
-        onClick={onPurchase}
+        onClick={handlePurchase}
         className="w-full mt-4"
+        disabled={isLoading}
       >
-        Purchase Tickets
+        {isLoading ? "Processing..." : "Purchase Tickets"}
       </Button>
     </div>
   );

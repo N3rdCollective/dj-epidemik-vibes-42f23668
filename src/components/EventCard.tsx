@@ -7,17 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-
 import { EventDateTime } from "./event/EventDateTime";
 import { EventVenue } from "./event/EventVenue";
 import { EventActions } from "./event/EventActions";
@@ -55,17 +44,6 @@ export const EventCard = ({
   setSelectedPackage,
   isCameloEvent = false,
 }: EventCardProps) => {
-  const [isRsvpDialogOpen, setIsRsvpDialogOpen] = useState(false);
-
-  const handleTicketPurchase = (eventName: string) => {
-    if (!selectedPackage) {
-      toast.error("Please select a ticket package");
-      return;
-    }
-    toast.success(`Ticket purchase initiated for ${eventName} - ${selectedPackage}`);
-    setSelectedPackage("");
-  };
-
   return (
     <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-700">
       <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -99,12 +77,12 @@ export const EventCard = ({
                   packages={packages}
                   selectedPackage={selectedPackage}
                   setSelectedPackage={setSelectedPackage}
-                  onPurchase={() => handleTicketPurchase(venue)}
+                  eventId={id}
                 />
               </DialogContent>
             </Dialog>
           ) : (
-            <Dialog open={isRsvpDialogOpen} onOpenChange={setIsRsvpDialogOpen}>
+            <Dialog>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
                   RSVP Now
@@ -117,7 +95,7 @@ export const EventCard = ({
                     Fill out the form below to reserve your spot
                   </DialogDescription>
                 </DialogHeader>
-                <RsvpForm eventId={id} onSuccess={() => setIsRsvpDialogOpen(false)} />
+                <RsvpForm eventId={id} />
               </DialogContent>
             </Dialog>
           )}
