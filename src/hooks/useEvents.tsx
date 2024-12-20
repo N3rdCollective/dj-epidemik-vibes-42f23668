@@ -86,7 +86,7 @@ export const useEvents = () => {
           })}`,
           type: event.type as "packages" | "rsvp",
           packages: parsedPackages,
-          icalLink: YOUR_ICAL_URL,
+          icalLink: CAMELO_ICAL_URL,
           isCameloEvent: event.is_imported,
           icalUid: event.ical_uid
         } as ICalEvent;
@@ -100,8 +100,8 @@ export const useEvents = () => {
     queryFn: async () => {
       try {
         console.log('Fetching Camelo iCal events...');
-        const response = await axios.get(YOUR_ICAL_URL);
-        const parsedEvents = parseICalEvents(response.data, YOUR_ICAL_URL);
+        const response = await axios.get(CAMELO_ICAL_URL);
+        const parsedEvents = parseICalEvents(response.data, CAMELO_ICAL_URL);
         console.log('Parsed Camelo events:', parsedEvents);
         return parsedEvents.map(event => ({
           ...event,
@@ -109,6 +109,7 @@ export const useEvents = () => {
         }));
       } catch (error) {
         console.error('Error fetching Camelo iCal data:', error);
+        toast.error('Failed to load Camelo events');
         return [];
       }
     },
@@ -132,4 +133,4 @@ export const useEvents = () => {
   };
 };
 
-const YOUR_ICAL_URL = "https://calendar.google.com/calendar/ical/your-calendar-id/basic.ics"; // Replace with your actual iCal URL
+const CAMELO_ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=WG4wUGQyZThCT1VoME42R2F5QT0tLTZ4WmVxRG54YnJBS3pyNHgtLUloNTQ0T1Q2aUtYQzl4bjBHcTFMN2c9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
