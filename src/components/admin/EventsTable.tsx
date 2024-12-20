@@ -1,8 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Pencil } from "lucide-react";
 
 interface Event {
   id: string;
@@ -10,6 +12,9 @@ interface Event {
   venue: string;
   location: string;
   start_time: string;
+  end_time: string;
+  type: string;
+  packages?: any;
   is_imported?: boolean;
   is_live?: boolean;
 }
@@ -17,9 +22,10 @@ interface Event {
 interface EventsTableProps {
   events: Event[];
   onEventUpdate: () => void;
+  onEditEvent: (event: Event) => void;
 }
 
-export const EventsTable = ({ events, onEventUpdate }: EventsTableProps) => {
+export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableProps) => {
   const toggleEventVisibility = async (eventId: string, currentStatus: boolean) => {
     const { error } = await supabase
       .from('events')
@@ -46,6 +52,7 @@ export const EventsTable = ({ events, onEventUpdate }: EventsTableProps) => {
           <TableHead>Location</TableHead>
           <TableHead>Source</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -69,6 +76,17 @@ export const EventsTable = ({ events, onEventUpdate }: EventsTableProps) => {
                 />
                 <span>{event.is_live ? 'Live' : 'Draft'}</span>
               </div>
+            </TableCell>
+            <TableCell>
+              {!event.is_imported && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onEditEvent(event)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              )}
             </TableCell>
           </TableRow>
         ))}

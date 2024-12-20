@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
+import { useEffect } from "react";
 
 const eventFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -23,9 +24,18 @@ type EventInsert = Database['public']['Tables']['events']['Insert'];
 
 interface EventFormProps {
   onSuccess: () => void;
+  event?: {
+    id: string;
+    title: string;
+    venue: string;
+    location: string;
+    start_time: string;
+    end_time: string;
+    type: string;
+  };
 }
 
-export const EventForm = ({ onSuccess }: EventFormProps) => {
+export const EventForm = ({ onSuccess, event }: EventFormProps) => {
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
@@ -38,8 +48,25 @@ export const EventForm = ({ onSuccess }: EventFormProps) => {
     },
   });
 
+  useEffect(() => {
+    if (event) {
+      // Format the date-time string to match the input format
+      const startTime = new Date(event.start_time).toISOString().slice(0, 16);
+      const endTime = new Date(event.end_time).toISOString().slice(0, 16);
+      
+      form.reset({
+        title: event.title,
+        venue: event.venue,
+        location: event.location,
+        start_time: startTime,
+        end_time: endTime,
+        type: event.type,
+      });
+    }
+  }, [event, form]);
+
   const onSubmit = async (values: EventFormValues) => {
-    console.log('Creating new event:', values);
+    console.log('Submitting event:', values);
     
     const eventData: EventInsert = {
       title: values.title,
@@ -50,17 +77,29 @@ export const EventForm = ({ onSuccess }: EventFormProps) => {
       type: values.type,
     };
 
-    const { error } = await supabase
-      .from('events')
-      .insert(eventData);
+    let error;
+    if (event?.id) {
+      // Update existing event
+      const { error: updateError } = await supabase
+        .from('events')
+        .update(eventData)
+        .eq('id', event.id);
+      error = updateError;
+    } else {
+      // Create new event
+      const { error: insertError } = await supabase
+        .from('events')
+        .insert(eventData);
+      error = insertError;
+    }
 
     if (error) {
-      console.error('Error creating event:', error);
-      toast.error('Failed to create event');
+      console.error('Error saving event:', error);
+      toast.error('Failed to save event');
       return;
     }
 
-    toast.success('Event created successfully');
+    toast.success(event?.id ? 'Event updated successfully' : 'Event created successfully');
     form.reset();
     onSuccess();
   };
@@ -133,7 +172,7 @@ export const EventForm = ({ onSuccess }: EventFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit">Create Event</Button>
+        <Button type="submit">{event?.id ? 'Update Event' : 'Create Event'}</Button>
       </form>
     </Form>
   );

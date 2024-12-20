@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
@@ -11,10 +11,25 @@ import { useEvents } from "@/hooks/useEvents";
 import { EventForm } from "@/components/admin/EventForm";
 import { EventsTable } from "@/components/admin/EventsTable";
 
+interface Event {
+  id: string;
+  title: string;
+  venue: string;
+  location: string;
+  start_time: string;
+  end_time: string;
+  type: string;
+  packages?: any;
+  is_imported?: boolean;
+  is_live?: boolean;
+}
+
 const EventManagement = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { events: cameloEvents } = useEvents();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | undefined>();
 
   useEffect(() => {
     if (!user) {
@@ -48,6 +63,17 @@ const EventManagement = () => {
     navigate('/admin');
   };
 
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event);
+    setIsDialogOpen(true);
+  };
+
+  const handleSuccess = () => {
+    setIsDialogOpen(false);
+    setSelectedEvent(undefined);
+    refetch();
+  };
+
   if (!user || !isAdmin) return null;
 
   // Combine and format both database and Camelo events
@@ -71,26 +97,34 @@ const EventManagement = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Event Management</h1>
         <div className="flex gap-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Add New Event</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Event</DialogTitle>
-              </DialogHeader>
-              <EventForm onSuccess={refetch} />
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => {
+            setSelectedEvent(undefined);
+            setIsDialogOpen(true);
+          }}>
+            Add New Event
+          </Button>
           <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
         </div>
       </div>
 
       <Card className="p-6">
         <div className="overflow-x-auto">
-          <EventsTable events={allEvents} onEventUpdate={refetch} />
+          <EventsTable 
+            events={allEvents} 
+            onEventUpdate={refetch}
+            onEditEvent={handleEditEvent}
+          />
         </div>
       </Card>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+          </DialogHeader>
+          <EventForm onSuccess={handleSuccess} event={selectedEvent} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
