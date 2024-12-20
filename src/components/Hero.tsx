@@ -26,6 +26,16 @@ export const Hero = () => {
           />
           Your browser does not support the video tag.
         </video>
+        
+        {/* Continue Button */}
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+          <button 
+            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+            className="bg-primary text-black font-noto font-bold hover:bg-primary/80 px-8 py-3 rounded-full text-lg transition-colors animate-float"
+          >
+            Continue to Site
+          </button>
+        </div>
       </section>
 
       {/* Content Section Below Video */}
