@@ -8,6 +8,12 @@ import { EventFormValues } from "@/components/admin/types/eventTypes";
 import { parseISO } from "date-fns";
 import { adjustEndTimeForNextDay } from "@/utils/timeUtils";
 
+const packageSchema = z.object({
+  name: z.string().min(1, "Package name is required"),
+  price: z.number().min(0, "Price must be 0 or greater"),
+  description: z.string().min(1, "Description is required"),
+});
+
 const eventFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   venue: z.string().min(1, "Venue is required"),
@@ -15,11 +21,7 @@ const eventFormSchema = z.object({
   start_time: z.string().min(1, "Start time is required"),
   end_time: z.string().min(1, "End time is required"),
   type: z.string().min(1, "Type is required"),
-  packages: z.array(z.object({
-    name: z.string(),
-    price: z.number(),
-    description: z.string()
-  })).optional(),
+  packages: z.array(packageSchema).optional(),
 });
 
 type EventInsert = Database['public']['Tables']['events']['Insert'];

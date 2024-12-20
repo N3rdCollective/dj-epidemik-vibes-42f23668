@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { BasicEventFields } from "./form/BasicEventFields";
 import { DateTimeFields } from "./form/DateTimeFields";
 import { EventTypeField } from "./form/EventTypeField";
+import { PackageFields } from "./form/PackageFields";
 import { Package } from "./types/eventTypes";
 import { useEventForm } from "@/hooks/useEventForm";
 import { formatDateTimeForInput, adjustEndTimeForFormDisplay } from "@/utils/timeUtils";
@@ -24,6 +25,7 @@ interface EventFormProps {
 
 export const EventForm = ({ onSuccess, event }: EventFormProps) => {
   const { form, onSubmit } = useEventForm(onSuccess, event);
+  const eventType = form.watch('type');
 
   useEffect(() => {
     if (event) {
@@ -52,6 +54,7 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
         <BasicEventFields form={form} />
         <DateTimeFields form={form} />
         <EventTypeField form={form} />
+        <PackageFields form={form} showPackages={eventType === 'packages'} />
         <Button type="submit" className="w-full">
           {event?.id ? 'Update Event' : 'Create Event'}
         </Button>
