@@ -94,15 +94,21 @@ export const useEvents = () => {
     },
   });
 
-  // Fetch your personal iCal events
-  const { data: personalIcalData, isLoading: isPersonalIcalLoading } = useQuery({
-    queryKey: ['personal-ical-events'],
+  // Fetch Camelo iCal events
+  const { data: cameloEvents, isLoading: isCameloLoading } = useQuery({
+    queryKey: ['camelo-events'],
     queryFn: async () => {
       try {
+        console.log('Fetching Camelo iCal events...');
         const response = await axios.get(YOUR_ICAL_URL);
-        return parseICalEvents(response.data, YOUR_ICAL_URL);
+        const parsedEvents = parseICalEvents(response.data, YOUR_ICAL_URL);
+        console.log('Parsed Camelo events:', parsedEvents);
+        return parsedEvents.map(event => ({
+          ...event,
+          isCameloEvent: true
+        }));
       } catch (error) {
-        console.error('Error fetching personal iCal data:', error);
+        console.error('Error fetching Camelo iCal data:', error);
         return [];
       }
     },
@@ -111,16 +117,18 @@ export const useEvents = () => {
   // Combine all events and sort by date
   const allEvents = [
     ...(dbEvents || []),
-    ...(personalIcalData || [])
+    ...(cameloEvents || [])
   ].sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateA.getTime() - dateB.getTime();
   });
 
+  console.log('Combined events:', allEvents);
+
   return {
     events: allEvents,
-    isLoading: isDbLoading || isPersonalIcalLoading,
+    isLoading: isDbLoading || isCameloLoading,
   };
 };
 
