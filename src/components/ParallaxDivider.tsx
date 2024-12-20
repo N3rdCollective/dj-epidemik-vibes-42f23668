@@ -9,7 +9,7 @@ export const ParallaxDivider = () => {
       bgImage="lovable-uploads/0b08b6c6-1dcd-483a-a35c-fc138e511e00.png"
       bgImageAlt="DJ EPIDEMIK performing"
       strength={200}
-      className="h-[60vh] relative"
+      className="h-screen relative" // Changed from h-[60vh] to h-screen for full height
     >
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
       <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center text-center relative z-10">
