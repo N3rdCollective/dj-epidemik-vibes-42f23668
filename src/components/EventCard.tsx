@@ -12,6 +12,7 @@ import { EventVenue } from "./event/EventVenue";
 import { EventActions } from "./event/EventActions";
 import { RsvpForm } from "./event/RsvpForm";
 import { PackageSelector } from "./event/PackageSelector";
+import { useState } from "react";
 
 interface Package {
   name: string;
@@ -44,6 +45,16 @@ export const EventCard = ({
   setSelectedPackage,
   isCameloEvent = false,
 }: EventCardProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handlePurchaseSuccess = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleRsvpSuccess = () => {
+    setIsDialogOpen(false);
+  };
+
   return (
     <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-700">
       <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -60,7 +71,7 @@ export const EventCard = ({
           venue={venue}
         >
           {type === "packages" ? (
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
                   Get Tickets
@@ -78,11 +89,12 @@ export const EventCard = ({
                   selectedPackage={selectedPackage}
                   setSelectedPackage={setSelectedPackage}
                   eventId={id}
+                  onPurchase={handlePurchaseSuccess}
                 />
               </DialogContent>
             </Dialog>
           ) : (
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
                   RSVP Now
@@ -95,7 +107,10 @@ export const EventCard = ({
                     Fill out the form below to reserve your spot
                   </DialogDescription>
                 </DialogHeader>
-                <RsvpForm eventId={id} />
+                <RsvpForm 
+                  eventId={id} 
+                  onSuccess={handleRsvpSuccess}
+                />
               </DialogContent>
             </Dialog>
           )}
