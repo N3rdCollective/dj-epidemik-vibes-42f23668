@@ -89,10 +89,9 @@ export const Music = () => {
                   alt={mix.name}
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
-                <h3 className="text-primary mt-4 text-lg font-semibold group-hover:text-primary/80">{mix.name}</h3>
-                <p className="text-primary/70 text-sm">
-                  {new Date(mix.created_time).toLocaleDateString()}
-                </p>
+                <h3 className="text-primary mt-4 text-lg font-semibold group-hover:text-primary/80 text-center">
+                  {mix.name}
+                </h3>
               </a>
             ))}
           </div>
