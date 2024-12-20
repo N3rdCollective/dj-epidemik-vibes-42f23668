@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format, isAfter, parseISO, addDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Pencil } from "lucide-react";
@@ -42,12 +42,30 @@ export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableP
     onEventUpdate();
   };
 
+  const formatEventTime = (startTime: string, endTime: string) => {
+    try {
+      const start = parseISO(startTime);
+      let end = parseISO(endTime);
+
+      // If end time is before start time, it's the next day
+      if (isAfter(start, end)) {
+        end = addDays(end, 1);
+      }
+
+      return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')}${isAfter(start, end) ? ' (next day)' : ''}`;
+    } catch (error) {
+      console.error('Error formatting event time:', error);
+      return 'Invalid time';
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Title</TableHead>
           <TableHead>Date</TableHead>
+          <TableHead>Time</TableHead>
           <TableHead>Venue</TableHead>
           <TableHead>Location</TableHead>
           <TableHead>Source</TableHead>
@@ -61,6 +79,9 @@ export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableP
             <TableCell>{event.title}</TableCell>
             <TableCell>
               {format(new Date(event.start_time), 'MMM dd yyyy')}
+            </TableCell>
+            <TableCell>
+              {formatEventTime(event.start_time, event.end_time)}
             </TableCell>
             <TableCell>{event.venue}</TableCell>
             <TableCell>{event.location}</TableCell>
