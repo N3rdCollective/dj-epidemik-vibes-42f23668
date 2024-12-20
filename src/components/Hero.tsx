@@ -1,20 +1,27 @@
-import React from "react";
-import epidemikLogo from "/dj-epidemik-logo.png";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export const Hero = () => {
+  useEffect(() => {
+    const img = new Image();
+    img.src = "lovable-uploads/be0bef3c-0975-405c-b967-8e5962c22b85.png";
+    img.onload = () => console.log("Image loaded successfully");
+    img.onerror = (e) => console.error("Error loading image:", e);
+  }, []);
+
   return (
     <>
-      {/* Video Hero Section */}
-      <section className="relative h-screen w-full overflow-hidden">
+      {/* Full-screen Video Section */}
+      <section className="h-screen relative">
         <video
           autoPlay
-          muted
           loop
+          muted
           playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
+          className="w-full h-full object-cover"
         >
           <source
-            src="https://res.cloudinary.com/dfyqx7vcu/video/upload/v1711386814/epidemik-video_yvbxvp.mp4"
+            src="https://djepidemik.com/wp-content/uploads/2024/10/hero-video.mp4"
             type="video/mp4"
           />
           Your browser does not support the video tag.
@@ -32,13 +39,27 @@ export const Hero = () => {
       </section>
 
       {/* Content Section Below Video */}
-      <section className="relative min-h-screen w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url("/lovable-uploads/a2ad1e2b-a00b-48a1-8d6a-32466d496329.png")' }}>
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <img
-            src={epidemikLogo}
-            alt="DJ Epidemik Logo"
-            className="w-full max-w-xl mx-auto px-4 animate-float"
-          />
+      <section className="py-20 bg-[#0A0A0A]">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <img 
+              src="lovable-uploads/be0bef3c-0975-405c-b967-8e5962c22b85.png" 
+              alt="DJ EPIDEMIK"
+              className="w-[500px] md:w-[700px] mx-auto mb-6 filter brightness-200"
+              onError={(e) => console.error("Image failed to load:", e)}
+            />
+            <p className="text-xl md:text-2xl text-gray-300 mb-8">
+              Experience the Epidemic of Sound
+            </p>
+            <button className="bg-primary text-black font-noto font-bold hover:bg-primary/80 px-8 py-3 rounded-full text-lg transition-colors">
+              Book Now
+            </button>
+          </motion.div>
         </div>
       </section>
     </>
