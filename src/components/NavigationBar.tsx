@@ -11,7 +11,7 @@ export const NavigationBar = () => {
   };
 
   return (
-    <nav className="bg-black/50 backdrop-blur-sm fixed w-full z-50 top-0">
+    <nav className="bg-black/50 backdrop-blur-sm w-full z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex space-x-8">
