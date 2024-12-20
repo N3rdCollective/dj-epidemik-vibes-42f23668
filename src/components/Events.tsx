@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { parseICalEvents } from "@/utils/icalParser";
 
 const ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=b1V4c2N4ck9RODAxWmZ6Q25MWT0tLXJ0c2dleFRqM3hjWSs5bDItLUpmd00wYS9hRzBMTEFQVDZTU0hoeHc9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
 
@@ -34,7 +35,7 @@ export const Events = () => {
   const [selectedPackage, setSelectedPackage] = useState("");
   const [events, setEvents] = useState<ICalEvent[]>([]);
 
-  const { data: icalData, isLoading } = useQuery({
+  const { data: icalData, isLoading, error } = useQuery({
     queryKey: ['ical-events'],
     queryFn: async () => {
       console.log('Fetching iCal data...');
@@ -46,11 +47,17 @@ export const Events = () => {
 
   useEffect(() => {
     if (icalData) {
-      // Here we would parse the iCal data and merge it with our existing events
-      // For now, we'll keep the existing events as fallback
       console.log('Processing iCal data...');
-      // The actual implementation would parse the iCal format and create event objects
-      // This is a placeholder for the parsing logic
+      try {
+        const parsedEvents = parseICalEvents(icalData);
+        console.log('Parsed events:', parsedEvents);
+        if (parsedEvents.length > 0) {
+          setEvents(parsedEvents);
+        }
+      } catch (error) {
+        console.error('Error parsing iCal data:', error);
+        toast.error('Failed to load calendar events');
+      }
     }
   }, [icalData]);
 
@@ -143,6 +150,11 @@ export const Events = () => {
         </div>
       </section>
     );
+  }
+
+  if (error) {
+    console.error('Error fetching calendar:', error);
+    toast.error('Failed to load calendar events');
   }
 
   const displayEvents = events.length > 0 ? events : defaultEvents;
