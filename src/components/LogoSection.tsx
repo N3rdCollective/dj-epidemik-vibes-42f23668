@@ -11,7 +11,7 @@ export const LogoSection = () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          filter: 'brightness(0.5)', // Darken the background to maintain text readability
+          filter: 'brightness(0.3)', // Changed from 0.5 to 0.3 to make the overlay darker
         }}
       />
       
