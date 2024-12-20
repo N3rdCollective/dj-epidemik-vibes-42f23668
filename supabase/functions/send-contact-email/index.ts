@@ -21,6 +21,11 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not set');
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+
     const formData: ContactFormData = await req.json()
     console.log('Received contact form submission:', formData)
 
@@ -44,23 +49,22 @@ const handler = async (req: Request): Promise<Response> => {
       }),
     })
 
+    const responseData = await res.json()
+    console.log('Resend API response:', responseData)
+
     if (!res.ok) {
-      const error = await res.text()
-      console.error('Error sending email:', error)
-      throw new Error('Failed to send email')
+      console.error('Error from Resend API:', responseData)
+      throw new Error(responseData.message || 'Failed to send email')
     }
 
-    const data = await res.json()
-    console.log('Email sent successfully:', data)
-
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify(responseData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
   } catch (error) {
     console.error('Error in send-contact-email function:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to send email' }),
+      JSON.stringify({ error: error.message || 'Failed to send email' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
