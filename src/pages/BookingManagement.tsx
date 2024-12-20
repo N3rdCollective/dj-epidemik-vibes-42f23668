@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format, addHours, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { EditBookingDialog } from "@/components/admin/booking/EditBookingDialog";
 
 const BookingManagement = () => {
   const { user, isAdmin } = useAuth();
@@ -42,75 +42,6 @@ const BookingManagement = () => {
     },
   });
 
-  const calculateTotal = (booking: any, newRate?: number, newEquipmentCost?: number) => {
-    if (!booking.start_time || !booking.end_time) return 0;
-
-    const start = parseISO(booking.start_time);
-    const end = parseISO(booking.end_time);
-    
-    // Add 1 hour before for setup and 1 hour after for breakdown
-    const adjustedStart = addHours(start, -1);
-    const adjustedEnd = addHours(end, 1);
-    
-    // Calculate total hours including setup and breakdown time
-    const hours = Math.ceil((adjustedEnd.getTime() - adjustedStart.getTime()) / (1000 * 60 * 60));
-    
-    const rate = newRate ?? booking.rate_per_hour ?? 0;
-    const equipmentCost = newEquipmentCost ?? booking.equipment_cost ?? 0;
-    
-    return (rate * hours) + Number(equipmentCost);
-  };
-
-  const handleRateUpdate = async (bookingId: string, rate: number) => {
-    try {
-      const booking = bookings?.find(b => b.id === bookingId);
-      if (!booking) return;
-
-      const total = calculateTotal(booking, rate);
-
-      const { error } = await supabase
-        .from('dj_bookings')
-        .update({ 
-          rate_per_hour: rate,
-          total_amount: total
-        })
-        .eq('id', bookingId);
-
-      if (error) throw error;
-
-      toast.success('Rate and total updated successfully');
-      refetch();
-    } catch (error) {
-      console.error('Error updating rate:', error);
-      toast.error('Failed to update rate');
-    }
-  };
-
-  const handleEquipmentCostUpdate = async (bookingId: string, equipmentCost: number) => {
-    try {
-      const booking = bookings?.find(b => b.id === bookingId);
-      if (!booking) return;
-
-      const total = calculateTotal(booking, undefined, equipmentCost);
-
-      const { error } = await supabase
-        .from('dj_bookings')
-        .update({ 
-          equipment_cost: equipmentCost,
-          total_amount: total
-        })
-        .eq('id', bookingId);
-
-      if (error) throw error;
-
-      toast.success('Equipment cost and total updated successfully');
-      refetch();
-    } catch (error) {
-      console.error('Error updating equipment cost:', error);
-      toast.error('Failed to update equipment cost');
-    }
-  };
-
   const handleBackToDashboard = () => {
     navigate('/admin');
   };
@@ -137,10 +68,11 @@ const BookingManagement = () => {
                 <TableHead>Event Type</TableHead>
                 <TableHead>Duration</TableHead>
                 <TableHead>Guests</TableHead>
-                <TableHead>Equipment Needed</TableHead>
-                <TableHead>Rate/Hour ($)</TableHead>
-                <TableHead>Equipment Cost ($)</TableHead>
-                <TableHead>Total ($)</TableHead>
+                <TableHead>Equipment</TableHead>
+                <TableHead>Rate/Hour</TableHead>
+                <TableHead>Equipment Cost</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,40 +94,17 @@ const BookingManagement = () => {
                   </TableCell>
                   <TableCell>{booking.number_of_guests}</TableCell>
                   <TableCell>{booking.needs_equipment ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>${booking.rate_per_hour || '0'}</TableCell>
+                  <TableCell>${booking.equipment_cost || '0'}</TableCell>
+                  <TableCell>${booking.total_amount?.toFixed(2) || '0.00'}</TableCell>
                   <TableCell>
-                    <Input
-                      type="number"
-                      defaultValue={booking.rate_per_hour || ''}
-                      className="w-24"
-                      onBlur={(e) => {
-                        const rate = parseFloat(e.target.value);
-                        if (!isNaN(rate)) {
-                          handleRateUpdate(booking.id, rate);
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      defaultValue={booking.equipment_cost || ''}
-                      className="w-24"
-                      onBlur={(e) => {
-                        const cost = parseFloat(e.target.value);
-                        if (!isNaN(cost)) {
-                          handleEquipmentCostUpdate(booking.id, cost);
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {booking.total_amount ? `$${booking.total_amount.toFixed(2)}` : '-'}
+                    <EditBookingDialog booking={booking} onUpdate={refetch} />
                   </TableCell>
                 </TableRow>
               ))}
               {(!bookings || bookings.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-4">
+                  <TableCell colSpan={12} className="text-center py-4">
                     No booking requests found
                   </TableCell>
                 </TableRow>
