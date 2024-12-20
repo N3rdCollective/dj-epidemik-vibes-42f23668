@@ -87,8 +87,10 @@ export type Database = {
           email: string | null
           equipment_details: string | null
           event_date: string | null
+          event_description: string | null
           event_duration: string | null
           event_id: string | null
+          event_type: string | null
           id: string
           name: string
           needs_equipment: boolean
@@ -100,8 +102,10 @@ export type Database = {
           email?: string | null
           equipment_details?: string | null
           event_date?: string | null
+          event_description?: string | null
           event_duration?: string | null
           event_id?: string | null
+          event_type?: string | null
           id?: string
           name: string
           needs_equipment?: boolean
@@ -113,8 +117,10 @@ export type Database = {
           email?: string | null
           equipment_details?: string | null
           event_date?: string | null
+          event_description?: string | null
           event_duration?: string | null
           event_id?: string | null
+          event_type?: string | null
           id?: string
           name?: string
           needs_equipment?: boolean
