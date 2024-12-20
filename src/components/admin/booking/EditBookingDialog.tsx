@@ -39,6 +39,7 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
   const handleSave = async () => {
     try {
       const total = calculateTotal();
+      console.log('Saving booking with total:', total, 'Rate:', ratePerHour, 'Equipment:', equipmentCost);
 
       const { error } = await supabase
         .from('dj_bookings')
