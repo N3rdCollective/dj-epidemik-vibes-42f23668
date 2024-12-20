@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Received contact form submission:', formData)
 
     const emailData = {
-      from: 'DJ Epidemik <thedjepidemik@gmail.com>',
+      from: 'DJ Epidemik <onboarding@resend.dev>', // Using Resend's default domain
       to: ['thedjepidemik@gmail.com'],
       reply_to: formData.email,
       subject: `New Contact Form Submission: ${formData.subject}`,
