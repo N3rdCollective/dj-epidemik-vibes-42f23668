@@ -5,6 +5,7 @@ import axios from "axios";
 import { parseICalEvents } from "@/utils/icalParser";
 import { EventCard } from "./EventCard";
 import { MonthGroup } from "./MonthGroup";
+import { Button } from "./ui/button";
 
 const ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=b1V4c2N4ck9RODAxWmZ6Q25MWT0tLXJ0c2dleFRqM3hjWSs5bDItLUpmd00wYS9hRzBMTEFQVDZTU0hoeHc9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
 
@@ -25,6 +26,7 @@ interface ICalEvent {
 export const Events = () => {
   const [selectedPackage, setSelectedPackage] = useState("");
   const [events, setEvents] = useState<ICalEvent[]>([]);
+  const [showAllMonths, setShowAllMonths] = useState(false);
 
   const { data: icalData, isLoading, error } = useQuery({
     queryKey: ['ical-events'],
@@ -143,6 +145,27 @@ export const Events = () => {
     return groups;
   }, {});
 
+  // Get current month and year
+  const currentDate = new Date();
+  const currentMonth = currentDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+  const currentYear = currentDate.getFullYear();
+  const currentMonthYear = `${currentMonth} ${currentYear}`;
+
+  // Filter events for current month and future months
+  const sortedMonthYears = Object.keys(groupedEvents).sort((a, b) => {
+    const [monthA, yearA] = a.split(' ');
+    const [monthB, yearB] = b.split(' ');
+    const yearDiff = parseInt(yearA) - parseInt(yearB);
+    if (yearDiff !== 0) return yearDiff;
+    return new Date(Date.parse(`${monthA} 1, 2000`)).getMonth() - 
+           new Date(Date.parse(`${monthB} 1, 2000`)).getMonth();
+  });
+
+  // Get months to display based on showAllMonths state
+  const monthsToDisplay = showAllMonths 
+    ? sortedMonthYears 
+    : sortedMonthYears.filter(monthYear => monthYear === currentMonthYear);
+
   return (
     <section className="py-20 bg-[#0A0A0A]" id="events">
       <div className="container mx-auto px-4">
@@ -150,9 +173,9 @@ export const Events = () => {
           Upcoming Events
         </h2>
         <div className="max-w-4xl mx-auto">
-          {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
+          {monthsToDisplay.map((monthYear) => (
             <MonthGroup key={monthYear} month={monthYear}>
-              {monthEvents.map((event, index) => (
+              {groupedEvents[monthYear].map((event, index) => (
                 <EventCard
                   key={index}
                   {...event}
@@ -162,6 +185,17 @@ export const Events = () => {
               ))}
             </MonthGroup>
           ))}
+          
+          {!showAllMonths && sortedMonthYears.length > 1 && (
+            <div className="flex justify-center mt-8">
+              <Button 
+                onClick={() => setShowAllMonths(true)}
+                className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
+              >
+                View More Events
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </section>
