@@ -22,8 +22,8 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not set');
-      throw new Error('RESEND_API_KEY is not configured');
+      console.error('RESEND_API_KEY environment variable is not set');
+      throw new Error('Email service is not configured properly');
     }
 
     const formData: ContactFormData = await req.json()
@@ -42,7 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     };
 
-    console.log('Sending email with data:', emailData);
+    console.log('Attempting to send email with Resend API...');
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -67,10 +67,14 @@ const handler = async (req: Request): Promise<Response> => {
     })
   } catch (error) {
     console.error('Error in send-contact-email function:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    const errorDetails = error instanceof Error ? error.stack : undefined
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to send email',
-        details: error instanceof Error ? error.stack : undefined
+        error: errorMessage,
+        details: errorDetails,
+        tip: 'Please verify that the Resend API key is correctly set in the Edge Function secrets'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
