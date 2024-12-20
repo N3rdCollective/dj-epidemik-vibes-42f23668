@@ -41,7 +41,7 @@ export const Events = () => {
                   <p className="text-gray-400">{event.location}</p>
                 </div>
                 <div className="text-gray-300">{event.time}</div>
-                <button className="bg-primary hover:bg-primary/80 text-white px-6 py-2 rounded-full transition-colors">
+                <button className="bg-primary text-black hover:bg-primary/80 px-6 py-2 rounded-full transition-colors">
                   Get Tickets
                 </button>
               </div>

@@ -48,7 +48,7 @@ export const Hero = () => {
           <p className="text-xl md:text-2xl text-gray-300 mb-8">
             Experience the Epidemic of Sound
           </p>
-          <button className="bg-primary hover:bg-primary/80 text-white px-8 py-3 rounded-full text-lg transition-colors">
+          <button className="bg-primary text-black hover:bg-primary/80 px-8 py-3 rounded-full text-lg transition-colors">
             Book Now
           </button>
         </motion.div>

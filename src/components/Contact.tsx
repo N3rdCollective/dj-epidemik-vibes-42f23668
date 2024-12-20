@@ -30,7 +30,7 @@ export const Contact = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/80 text-white px-8 py-3 rounded-full text-lg transition-colors"
+              className="w-full bg-primary text-black hover:bg-primary/80 px-8 py-3 rounded-full text-lg transition-colors"
             >
               Send Message
             </button>
