@@ -34,9 +34,10 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
       // Format date with full month name and day
       const month = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
       const day = startDate.getDate().toString().padStart(2, '0');
+      const year = startDate.getFullYear();
       
       return {
-        date: `${month} ${day}`,
+        date: `${month} ${day} ${year}`,
         venue: event.summary || 'TBA',
         location: event.location || 'TBA',
         time: `${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')} - ${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`,
@@ -57,19 +58,24 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
       };
     })
     .sort((a: ICalEvent, b: ICalEvent) => {
-      // Convert date strings to Date objects for proper chronological sorting
-      const yearA = new Date().getFullYear();
-      const yearB = new Date().getFullYear();
-      const monthA = new Date(`${a.date} ${yearA}`).getMonth();
-      const monthB = new Date(`${b.date} ${yearB}`).getMonth();
-      const dayA = parseInt(a.date.split(' ')[1]);
-      const dayB = parseInt(b.date.split(' ')[1]);
-
-      // First compare months
-      if (monthA !== monthB) {
-        return monthA - monthB;
+      // Parse dates for comparison
+      const [monthA, dayA, yearA] = a.date.split(' ');
+      const [monthB, dayB, yearB] = b.date.split(' ');
+      
+      // Convert month names to numbers (0-11)
+      const monthNumA = new Date(Date.parse(`${monthA} 1, 2000`)).getMonth();
+      const monthNumB = new Date(Date.parse(`${monthB} 1, 2000`)).getMonth();
+      
+      // Compare years first
+      const yearDiff = parseInt(yearA) - parseInt(yearB);
+      if (yearDiff !== 0) return yearDiff;
+      
+      // If years are equal, compare months
+      if (monthNumA !== monthNumB) {
+        return monthNumA - monthNumB;
       }
-      // If months are the same, compare days
-      return dayA - dayB;
+      
+      // If months are equal, compare days
+      return parseInt(dayA) - parseInt(dayB);
     });
 };

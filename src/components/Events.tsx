@@ -54,7 +54,7 @@ export const Events = () => {
 
   const defaultEvents: ICalEvent[] = [
     {
-      date: "MAR 15",
+      date: "MAR 15 2024",
       venue: "Club Nova",
       location: "Los Angeles, CA",
       time: "10 PM - 2 AM",
@@ -79,7 +79,7 @@ export const Events = () => {
       icalLink: ICAL_URL
     },
     {
-      date: "MAR 22",
+      date: "MAR 22 2024",
       venue: "Electric Festival",
       location: "Miami, FL",
       time: "9 PM - 1 AM",
@@ -104,7 +104,7 @@ export const Events = () => {
       icalLink: "https://calendar.google.com/calendar/ical/example2@gmail.com/public/basic.ics"
     },
     {
-      date: "APR 05",
+      date: "APR 05 2024",
       venue: "The Underground",
       location: "New York, NY",
       time: "11 PM - 4 AM",
@@ -132,13 +132,14 @@ export const Events = () => {
 
   const displayEvents = events.length > 0 ? events : defaultEvents;
 
-  // Group events by month
+  // Group events by month and year
   const groupedEvents = displayEvents.reduce((groups: { [key: string]: ICalEvent[] }, event) => {
-    const month = event.date.split(' ')[0];
-    if (!groups[month]) {
-      groups[month] = [];
+    const [month, , year] = event.date.split(' ');
+    const monthYear = `${month} ${year}`;
+    if (!groups[monthYear]) {
+      groups[monthYear] = [];
     }
-    groups[month].push(event);
+    groups[monthYear].push(event);
     return groups;
   }, {});
 
@@ -149,8 +150,8 @@ export const Events = () => {
           Upcoming Events
         </h2>
         <div className="max-w-4xl mx-auto">
-          {Object.entries(groupedEvents).map(([month, monthEvents]) => (
-            <MonthGroup key={month} month={month}>
+          {Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
+            <MonthGroup key={monthYear} month={monthYear}>
               {monthEvents.map((event, index) => (
                 <EventCard
                   key={index}
