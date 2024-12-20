@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RsvpsTable } from "@/components/admin/RsvpsTable";
 
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -25,6 +24,10 @@ const AdminDashboard = () => {
     navigate('/admin/events');
   };
 
+  const handleNavigateToRsvps = () => {
+    navigate('/admin/rsvps');
+  };
+
   if (!user || !isAdmin) return null;
 
   return (
@@ -34,7 +37,7 @@ const AdminDashboard = () => {
         <Button onClick={handleBackToSite}>Back to Website</Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="p-6">
           <h2 className="text-2xl font-semibold mb-4">Content Management</h2>
           <p className="text-gray-600 mb-4">Manage your website content</p>
@@ -44,16 +47,12 @@ const AdminDashboard = () => {
           <p className="text-gray-600 mb-4">Manage your events and calendar</p>
           <Button>View Events</Button>
         </Card>
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">User Management</h2>
-          <p className="text-gray-600 mb-4">Manage user accounts and permissions</p>
+        <Card className="p-6 cursor-pointer" onClick={handleNavigateToRsvps}>
+          <h2 className="text-2xl font-semibold mb-4">RSVP Management</h2>
+          <p className="text-gray-600 mb-4">View and manage event RSVPs</p>
+          <Button>View RSVPs</Button>
         </Card>
       </div>
-
-      <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-4">Event RSVPs</h2>
-        <RsvpsTable />
-      </Card>
     </div>
   );
 };
