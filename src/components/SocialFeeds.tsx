@@ -1,4 +1,4 @@
-import { Instagram, Tiktok } from "lucide-react";
+import { Instagram, Music2 } from "lucide-react";
 
 export const SocialFeeds = () => {
   return (
@@ -14,7 +14,7 @@ export const SocialFeeds = () => {
             rel="noopener noreferrer"
             className="group flex flex-col items-center transition-transform hover:scale-110"
           >
-            <Tiktok className="w-16 h-16 text-white mb-2" />
+            <Music2 className="w-16 h-16 text-white mb-2" />
             <span className="text-white text-lg">TikTok</span>
           </a>
 
