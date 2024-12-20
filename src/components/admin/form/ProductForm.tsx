@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -30,22 +31,22 @@ export const ProductForm = () => {
 
   const onSubmit = async (values: ProductFormValues) => {
     try {
-      const response = await fetch('/api/create-product', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      console.log('Submitting product creation with values:', values);
+      
+      const { data, error } = await supabase.functions.invoke('create-product', {
+        body: {
           name: values.name,
           description: values.description,
           price: parseFloat(values.price) * 100, // Convert to cents for Stripe
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create product');
+      if (error) {
+        console.error('Error creating product:', error);
+        throw error;
       }
 
+      console.log('Product created successfully:', data);
       toast.success("Product created successfully!");
       form.reset();
     } catch (error) {
