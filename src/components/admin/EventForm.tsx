@@ -8,6 +8,7 @@ import { PackageFields } from "./form/PackageFields";
 import { Package } from "./types/eventTypes";
 import { useEventForm } from "@/hooks/useEventForm";
 import { formatDateTimeForInput, adjustEndTimeForFormDisplay } from "@/utils/timeUtils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EventFormProps {
   onSuccess: () => void;
@@ -50,15 +51,17 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <BasicEventFields form={form} />
-        <DateTimeFields form={form} />
-        <EventTypeField form={form} />
-        <PackageFields form={form} showPackages={eventType === 'packages'} />
-        <Button type="submit" className="w-full">
-          {event?.id ? 'Update Event' : 'Create Event'}
-        </Button>
-      </form>
+      <ScrollArea className="h-[80vh] pr-4">
+        <form onSubmit={onSubmit} className="space-y-4">
+          <BasicEventFields form={form} />
+          <DateTimeFields form={form} />
+          <EventTypeField form={form} />
+          <PackageFields form={form} showPackages={eventType === 'packages'} />
+          <Button type="submit" className="w-full">
+            {event?.id ? 'Update Event' : 'Create Event'}
+          </Button>
+        </form>
+      </ScrollArea>
     </Form>
   );
 };
