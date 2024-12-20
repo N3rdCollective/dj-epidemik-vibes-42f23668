@@ -21,12 +21,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Log the API key length to help debug (without exposing the key)
-    console.log('API Key status:', RESEND_API_KEY ? `Present (length: ${RESEND_API_KEY.length})` : 'Missing');
+    // Log the API key status (without exposing the actual key)
+    const apiKeyStatus = RESEND_API_KEY ? 
+      `Present (length: ${RESEND_API_KEY.length}, starts with: ${RESEND_API_KEY.substring(0, 3)}...)` : 
+      'Missing';
+    console.log('API Key status:', apiKeyStatus);
 
     if (!RESEND_API_KEY) {
       console.error('RESEND_API_KEY environment variable is not set');
       throw new Error('Email service is not configured properly');
+    }
+
+    if (!RESEND_API_KEY.startsWith('re_')) {
+      console.error('Invalid Resend API key format');
+      throw new Error('Invalid API key format. Resend API keys should start with "re_"');
     }
 
     const formData: ContactFormData = await req.json()
