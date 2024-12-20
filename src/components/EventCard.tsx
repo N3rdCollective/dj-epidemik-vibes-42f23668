@@ -18,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-// Since this file is getting too long, let's split it into smaller components
 import { EventDateTime } from "./event/EventDateTime";
 import { EventVenue } from "./event/EventVenue";
 import { EventActions } from "./event/EventActions";
@@ -32,14 +31,13 @@ interface Package {
 }
 
 interface EventCardProps {
-  id: string; // Make id required
+  id: string;
   date: string;
   venue: string;
   location: string;
   time: string;
   type: "packages" | "rsvp";
   packages?: Package[];
-  icalLink: string;
   selectedPackage: string;
   setSelectedPackage: (value: string) => void;
   isCameloEvent?: boolean;
@@ -53,7 +51,6 @@ export const EventCard = ({
   time,
   type,
   packages,
-  icalLink,
   selectedPackage,
   setSelectedPackage,
   isCameloEvent = false,
@@ -67,11 +64,6 @@ export const EventCard = ({
     }
     toast.success(`Ticket purchase initiated for ${eventName} - ${selectedPackage}`);
     setSelectedPackage("");
-  };
-
-  const handleAddToCalendar = (icalLink: string, eventName: string) => {
-    window.open(icalLink, '_blank');
-    toast.success(`Added ${eventName} to your calendar!`);
   };
 
   return (
@@ -88,9 +80,6 @@ export const EventCard = ({
           type={type}
           isCameloEvent={isCameloEvent}
           venue={venue}
-          icalLink={icalLink}
-          date={date}
-          handleAddToCalendar={handleAddToCalendar}
         >
           {type === "packages" ? (
             <Dialog>
