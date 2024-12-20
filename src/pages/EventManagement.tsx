@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
@@ -9,10 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { useEvents } from "@/hooks/useEvents";
 
 const EventManagement = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { events: cameloEvents } = useEvents();
 
   useEffect(() => {
     if (!user) {
@@ -22,7 +24,7 @@ const EventManagement = () => {
     }
   }, [user, isAdmin, navigate]);
 
-  const { data: events, refetch } = useQuery({
+  const { data: dbEvents, refetch } = useQuery({
     queryKey: ['admin-events'],
     queryFn: async () => {
       console.log('Fetching all events for admin...');
@@ -37,7 +39,7 @@ const EventManagement = () => {
         throw error;
       }
 
-      console.log('Fetched events:', data);
+      console.log('Fetched database events:', data);
       return data || [];
     },
   });
@@ -64,6 +66,22 @@ const EventManagement = () => {
 
   if (!user || !isAdmin) return null;
 
+  // Combine and format both database and Camelo events
+  const allEvents = [
+    ...(dbEvents || []),
+    ...cameloEvents.map(event => ({
+      id: event.icalLink,
+      title: `${event.venue} Event`,
+      venue: event.venue,
+      location: event.location,
+      start_time: new Date(event.date).toISOString(),
+      is_imported: true,
+      is_live: true // Camelo events are always live
+    }))
+  ];
+
+  console.log('All events (combined):', allEvents);
+
   return (
     <div className="container mx-auto px-4 py-8 mt-16">
       <div className="flex justify-between items-center mb-8">
@@ -85,7 +103,7 @@ const EventManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events?.map((event) => (
+              {allEvents.map((event) => (
                 <TableRow key={event.id}>
                   <TableCell>{event.title}</TableCell>
                   <TableCell>
@@ -101,6 +119,7 @@ const EventManagement = () => {
                       <Switch
                         checked={event.is_live}
                         onCheckedChange={() => toggleEventVisibility(event.id, event.is_live)}
+                        disabled={event.is_imported} // Disable toggle for Camelo events
                       />
                       <span>{event.is_live ? 'Live' : 'Draft'}</span>
                     </div>
