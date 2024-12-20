@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import EventManagement from "./pages/EventManagement";
 import RsvpManagement from "./pages/RsvpManagement";
 import ProductManagement from "./pages/ProductManagement";
+import BookingManagement from "./pages/BookingManagement";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/admin/events" element={<EventManagement />} />
             <Route path="/admin/rsvps" element={<RsvpManagement />} />
             <Route path="/admin/products" element={<ProductManagement />} />
+            <Route path="/admin/bookings" element={<BookingManagement />} />
             <Route path="/" element={<Index />} />
           </Routes>
         </BrowserRouter>
