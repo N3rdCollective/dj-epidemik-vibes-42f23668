@@ -2,7 +2,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormValues } from "../types/eventTypes";
-import { addDays, isAfter, parseISO } from "date-fns";
+import { parseISO, isAfter } from "date-fns";
+import { adjustEndTimeForNextDay, formatDateTimeForInput } from "@/utils/timeUtils";
 
 interface DateTimeFieldsProps {
   form: UseFormReturn<EventFormValues>;
@@ -13,13 +14,8 @@ export const DateTimeFields = ({ form }: DateTimeFieldsProps) => {
     const startTime = parseISO(form.getValues("start_time"));
     const endTime = parseISO(e.target.value);
     
-    // If end time is before start time, assume it's the next day
-    if (isAfter(startTime, endTime)) {
-      const nextDayEndTime = addDays(endTime, 1);
-      form.setValue("end_time", nextDayEndTime.toISOString().slice(0, 16));
-    } else {
-      form.setValue("end_time", e.target.value);
-    }
+    const adjustedEndTime = adjustEndTimeForNextDay(startTime, endTime);
+    form.setValue("end_time", formatDateTimeForInput(adjustedEndTime));
   };
 
   return (
