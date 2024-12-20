@@ -24,7 +24,9 @@ export type Database = {
           needs_equipment: boolean | null
           number_of_guests: number | null
           phone: string | null
+          rate_per_hour: number | null
           start_time: string | null
+          total_amount: number | null
         }
         Insert: {
           created_at?: string
@@ -40,7 +42,9 @@ export type Database = {
           needs_equipment?: boolean | null
           number_of_guests?: number | null
           phone?: string | null
+          rate_per_hour?: number | null
           start_time?: string | null
+          total_amount?: number | null
         }
         Update: {
           created_at?: string
@@ -56,7 +60,9 @@ export type Database = {
           needs_equipment?: boolean | null
           number_of_guests?: number | null
           phone?: string | null
+          rate_per_hour?: number | null
           start_time?: string | null
+          total_amount?: number | null
         }
         Relationships: []
       }
