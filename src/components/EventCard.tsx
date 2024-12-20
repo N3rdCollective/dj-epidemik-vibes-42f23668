@@ -13,6 +13,7 @@ import { EventActions } from "./event/EventActions";
 import { RsvpForm } from "./event/RsvpForm";
 import { PackageSelector } from "./event/PackageSelector";
 import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 
 interface Package {
   name: string;
@@ -46,6 +47,7 @@ export const EventCard = ({
   isCameloEvent = false,
 }: EventCardProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
 
   const handlePurchaseSuccess = () => {
     setIsDialogOpen(false);
@@ -54,6 +56,8 @@ export const EventCard = ({
   const handleRsvpSuccess = () => {
     setIsDialogOpen(false);
   };
+
+  const showTicketButton = isAdmin && user;
 
   return (
     <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-700">
@@ -70,7 +74,7 @@ export const EventCard = ({
           isCameloEvent={isCameloEvent}
           venue={venue}
         >
-          {type === "packages" ? (
+          {type === "packages" && showTicketButton ? (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
@@ -93,7 +97,7 @@ export const EventCard = ({
                 />
               </DialogContent>
             </Dialog>
-          ) : (
+          ) : type === "rsvp" ? (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
@@ -113,7 +117,7 @@ export const EventCard = ({
                 />
               </DialogContent>
             </Dialog>
-          )}
+          ) : null}
         </EventActions>
       </div>
     </div>
