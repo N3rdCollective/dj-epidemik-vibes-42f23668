@@ -75,17 +75,25 @@ export const Music = () => {
         {isLoading || !mixes ? (
           <div className="text-white text-center">Loading mixes...</div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {mixes.map((mix: MixcloudTrack) => (
-              <div key={mix.key} className="w-full aspect-video">
-                <iframe 
-                  width="100%" 
-                  height="100%" 
-                  src={`https://www.mixcloud.com/widget/iframe/?hide_cover=1&feed=${encodeURIComponent(mix.key)}`}
-                  frameBorder="0"
-                  title={mix.name}
-                ></iframe>
-              </div>
+              <a 
+                key={mix.key} 
+                href={mix.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block transition-transform hover:scale-105"
+              >
+                <img 
+                  src={mix.pictures.large} 
+                  alt={mix.name}
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+                <h3 className="text-white mt-4 text-lg font-semibold">{mix.name}</h3>
+                <p className="text-gray-400 text-sm">
+                  {new Date(mix.created_time).toLocaleDateString()}
+                </p>
+              </a>
             ))}
           </div>
         )}
