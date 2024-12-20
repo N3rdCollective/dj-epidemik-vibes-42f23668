@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 
 export interface ICalEvent {
+  id: string; // Add this line
   date: string;
   venue: string;
   location: string;
