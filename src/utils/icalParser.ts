@@ -30,6 +30,8 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
     .map((event: any): ICalEvent => {
       const startDate = new Date(event.start);
       const endDate = new Date(event.end);
+      
+      // Format date with full month name and day
       const month = startDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
       const day = startDate.getDate().toString().padStart(2, '0');
       
@@ -55,9 +57,19 @@ export const parseICalEvents = (icalData: string, icalUrl: string): ICalEvent[] 
       };
     })
     .sort((a: ICalEvent, b: ICalEvent) => {
-      // Convert date strings back to Date objects for comparison
-      const dateA = new Date(`${a.date} ${new Date().getFullYear()}`);
-      const dateB = new Date(`${b.date} ${new Date().getFullYear()}`);
-      return dateA.getTime() - dateB.getTime();
+      // Convert date strings to Date objects for proper chronological sorting
+      const yearA = new Date().getFullYear();
+      const yearB = new Date().getFullYear();
+      const monthA = new Date(`${a.date} ${yearA}`).getMonth();
+      const monthB = new Date(`${b.date} ${yearB}`).getMonth();
+      const dayA = parseInt(a.date.split(' ')[1]);
+      const dayB = parseInt(b.date.split(' ')[1]);
+
+      // First compare months
+      if (monthA !== monthB) {
+        return monthA - monthB;
+      }
+      // If months are the same, compare days
+      return dayA - dayB;
     });
 };
