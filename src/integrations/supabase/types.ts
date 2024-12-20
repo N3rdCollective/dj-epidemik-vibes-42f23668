@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      dj_bookings: {
+        Row: {
+          created_at: string
+          email: string | null
+          end_time: string | null
+          equipment_details: string | null
+          event_date: string | null
+          event_description: string | null
+          event_duration: string | null
+          event_type: string | null
+          id: string
+          name: string
+          needs_equipment: boolean | null
+          number_of_guests: number | null
+          phone: string | null
+          start_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          end_time?: string | null
+          equipment_details?: string | null
+          event_date?: string | null
+          event_description?: string | null
+          event_duration?: string | null
+          event_type?: string | null
+          id?: string
+          name: string
+          needs_equipment?: boolean | null
+          number_of_guests?: number | null
+          phone?: string | null
+          start_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          end_time?: string | null
+          equipment_details?: string | null
+          event_date?: string | null
+          event_description?: string | null
+          event_duration?: string | null
+          event_type?: string | null
+          id?: string
+          name?: string
+          needs_equipment?: boolean | null
+          number_of_guests?: number | null
+          phone?: string | null
+          start_time?: string | null
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string

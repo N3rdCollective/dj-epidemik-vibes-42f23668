@@ -54,10 +54,9 @@ export const RsvpForm = ({ eventId, onSuccess }: RsvpFormProps) => {
       }
 
       const { error } = await supabase
-        .from("rsvps")
+        .from("dj_bookings")
         .insert([
           {
-            event_id: eventId,
             name: values.name,
             email: values.email || null,
             phone: values.phone || null,
