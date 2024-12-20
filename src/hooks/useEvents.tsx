@@ -2,8 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { parseICalEvents } from "@/utils/icalParser";
 import { toast } from "sonner";
-
-const ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=b1V4c2N4ck9RODAxWmZ6Q25MWT0tLXJ0c2dleFRqM3hjWSs5bDItLUpmd00wYS9hRzBMTEFQVDZTU0hoeHc9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface ICalEvent {
   date: string;
@@ -21,13 +20,54 @@ export interface ICalEvent {
 }
 
 export const useEvents = () => {
-  const { data: icalData, isLoading, error } = useQuery({
+  const { data: icalData, isLoading: isIcalLoading } = useQuery({
     queryKey: ['ical-events'],
     queryFn: async () => {
       console.log('Fetching iCal data...');
       const response = await axios.get(ICAL_URL);
       console.log('iCal response:', response.data);
       return response.data;
+    },
+  });
+
+  const { data: dbEvents, isLoading: isDbLoading } = useQuery({
+    queryKey: ['db-events'],
+    queryFn: async () => {
+      console.log('Fetching database events...');
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_live', true);
+      
+      if (error) {
+        console.error('Error fetching database events:', error);
+        toast.error('Failed to load database events');
+        return [];
+      }
+
+      console.log('Database events:', data);
+      
+      // Transform database events to match ICalEvent interface
+      return data.map(event => ({
+        date: new Date(event.start_time).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }).toUpperCase(),
+        venue: event.venue,
+        location: event.location,
+        time: `${new Date(event.start_time).toLocaleTimeString('en-US', { 
+          hour: 'numeric',
+          minute: 'numeric'
+        })} - ${new Date(event.end_time).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric'
+        })}`,
+        type: event.type as "packages" | "rsvp",
+        packages: event.packages,
+        icalLink: ICAL_URL,
+        isCameloEvent: event.is_imported
+      }));
     },
   });
 
@@ -98,7 +138,7 @@ export const useEvents = () => {
     try {
       const parsedEvents = parseICalEvents(icalData, ICAL_URL);
       if (parsedEvents.length > 0) {
-        events = parsedEvents;
+        events = [...events, ...parsedEvents];
       }
     } catch (error) {
       console.error('Error parsing iCal data:', error);
@@ -106,9 +146,15 @@ export const useEvents = () => {
     }
   }
 
+  // Combine database events with other events
+  if (dbEvents && dbEvents.length > 0) {
+    events = [...events, ...dbEvents];
+  }
+
   return {
     events: events.length > 0 ? events : defaultEvents,
-    isLoading,
-    error
+    isLoading: isIcalLoading || isDbLoading,
   };
 };
+
+const ICAL_URL = "https://api.camelohq.com/ical/0951e7cf-629b-4dbf-b08a-263cf483e740?smso=true&token=b1V4c2N4ck9RODAxWmZ6Q25MWT0tLXJ0c2dleFRqM3hjWSs5bDItLUpmd00wYS9hRzBMTEFQVDZTU0hoeHc9PQ%3D%3D&wid=6f6f1fb7-7065-4d7b-b965-9d2fc0f23674";
