@@ -9,7 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 interface Package {
   name: string;
@@ -18,6 +25,7 @@ interface Package {
 }
 
 interface EventCardProps {
+  id?: string;
   date: string;
   venue: string;
   location: string;
@@ -30,7 +38,16 @@ interface EventCardProps {
   isCameloEvent?: boolean;
 }
 
+const rsvpFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email().optional().or(z.literal("")),
+  phone: z.string().optional().or(z.literal("")),
+});
+
+type RsvpFormValues = z.infer<typeof rsvpFormSchema>;
+
 export const EventCard = ({
+  id,
   date,
   venue,
   location,
@@ -42,8 +59,39 @@ export const EventCard = ({
   setSelectedPackage,
   isCameloEvent = false,
 }: EventCardProps) => {
-  const handleRSVP = () => {
-    toast.success("RSVP Confirmed! See you at the event!");
+  const [isRsvpDialogOpen, setIsRsvpDialogOpen] = useState(false);
+  const form = useForm<RsvpFormValues>({
+    resolver: zodResolver(rsvpFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+    },
+  });
+
+  const handleRSVP = async (values: RsvpFormValues) => {
+    try {
+      console.log("Submitting RSVP:", { eventId: id, ...values });
+      const { error } = await supabase
+        .from("rsvps")
+        .insert([
+          {
+            event_id: id,
+            name: values.name,
+            email: values.email || null,
+            phone: values.phone || null,
+          },
+        ]);
+
+      if (error) throw error;
+
+      toast.success("RSVP Confirmed! See you at the event!");
+      setIsRsvpDialogOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error("Error submitting RSVP:", error);
+      toast.error("Failed to submit RSVP. Please try again.");
+    }
   };
 
   const handleTicketPurchase = (eventName: string) => {
@@ -117,12 +165,67 @@ export const EventCard = ({
                 </DialogContent>
               </Dialog>
             ) : (
-              <Button 
-                onClick={handleRSVP}
-                className="bg-primary text-black hover:bg-primary/80 font-bold px-8"
-              >
-                RSVP Now
-              </Button>
+              <Dialog open={isRsvpDialogOpen} onOpenChange={setIsRsvpDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-primary text-black hover:bg-primary/80 font-bold px-8">
+                    RSVP Now
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>RSVP for {venue}</DialogTitle>
+                    <DialogDescription>
+                      Fill out the form below to reserve your spot
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleRSVP)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email (Optional)</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="your@email.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone Number (Optional)</FormLabel>
+                            <FormControl>
+                              <Input type="tel" placeholder="(123) 456-7890" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" className="w-full">
+                        Submit RSVP
+                      </Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             )
           )}
           <Button
