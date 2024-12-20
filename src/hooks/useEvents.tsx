@@ -52,10 +52,11 @@ export const useEvents = () => {
         if (event.packages && Array.isArray(event.packages)) {
           parsedPackages = (event.packages as Json[]).map(pkg => {
             if (typeof pkg === 'object' && pkg !== null) {
+              const typedPkg = pkg as Record<string, Json>;
               return {
-                name: String(pkg.name || ''),
-                price: Number(pkg.price || 0),
-                description: String(pkg.description || '')
+                name: String(typedPkg.name || ''),
+                price: Number(typedPkg.price || 0),
+                description: String(typedPkg.description || '')
               };
             }
             return {
