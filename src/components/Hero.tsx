@@ -3,7 +3,27 @@ import { motion } from "framer-motion";
 export const Hero = () => {
   return (
     <section className="min-h-screen relative flex items-center justify-center bg-[#0A0A0A] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-transparent" />
+      {/* Video Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-50"
+        >
+          <source
+            src="https://assets.mixkit.co/videos/preview/mixkit-dj-playing-music-at-a-concert-814-large.mp4"
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-[#0A0A0A] z-[1]" />
+      
+      {/* Content */}
       <div className="container mx-auto px-4 z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
