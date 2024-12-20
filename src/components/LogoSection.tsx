@@ -1,6 +1,15 @@
 import { motion } from "framer-motion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { RsvpForm } from "./event/RsvpForm";
+import { useState } from "react";
 
 export const LogoSection = () => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleBookingSuccess = () => {
+    setIsDialogOpen(false);
+  };
+
   return (
     <section className="py-20 relative logo-section">
       {/* Background image */}
@@ -11,7 +20,7 @@ export const LogoSection = () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          filter: 'brightness(0.3)', // Changed from 0.5 to 0.3 to make the overlay darker
+          filter: 'brightness(0.3)',
         }}
       />
       
@@ -32,9 +41,22 @@ export const LogoSection = () => {
           <p className="text-xl md:text-2xl text-gray-300 mb-8">
             Experience the Epidemic of Sound
           </p>
-          <button className="bg-primary text-black font-noto font-bold hover:bg-primary/80 px-8 py-3 rounded-full text-lg transition-colors">
-            Book Now
-          </button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <button className="bg-primary text-black font-noto font-bold hover:bg-primary/80 px-8 py-3 rounded-full text-lg transition-colors">
+                Book Now
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Book DJ EPIDEMIK</DialogTitle>
+              </DialogHeader>
+              <RsvpForm 
+                eventId="booking-request" 
+                onSuccess={handleBookingSuccess}
+              />
+            </DialogContent>
+          </Dialog>
         </motion.div>
       </div>
     </section>
