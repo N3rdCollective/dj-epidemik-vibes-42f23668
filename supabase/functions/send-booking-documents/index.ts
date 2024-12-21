@@ -8,6 +8,7 @@ const corsHeaders = {
 }
 
 interface BookingData {
+  id: string;
   name: string;
   email: string;
   event_date: string;
@@ -48,6 +49,8 @@ const generateInvoiceHtml = (booking: BookingData) => {
 };
 
 const generateContractHtml = (booking: BookingData) => {
+  const signatureUrl = `${Deno.env.get('SITE_URL')}/sign-contract/${booking.id}`;
+  
   return `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
       <h1>DJ Services Agreement</h1>
@@ -76,6 +79,11 @@ const generateContractHtml = (booking: BookingData) => {
         <li>The remaining balance is due on the day of the event.</li>
         <li>Cancellations must be made at least 30 days before the event.</li>
       </ol>
+
+      <div style="margin-top: 40px;">
+        <p>To digitally sign this contract, please click the link below:</p>
+        <a href="${signatureUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Sign Contract</a>
+      </div>
     </div>
   `;
 };
@@ -102,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const subject = documentType === 'invoice' 
       ? 'Your DJ Booking Invoice' 
-      : 'DJ Services Agreement';
+      : 'DJ Services Agreement - Please Sign';
 
     const emailData = {
       from: 'DJ Epidemik <info@djepidemik.com>',

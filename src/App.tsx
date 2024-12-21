@@ -11,6 +11,7 @@ import EventManagement from "./pages/EventManagement";
 import RsvpManagement from "./pages/RsvpManagement";
 import ProductManagement from "./pages/ProductManagement";
 import BookingManagement from "./pages/BookingManagement";
+import SignContract from "./pages/SignContract";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/admin/rsvps" element={<RsvpManagement />} />
             <Route path="/admin/products" element={<ProductManagement />} />
             <Route path="/admin/bookings" element={<BookingManagement />} />
+            <Route path="/sign-contract/:bookingId" element={<SignContract />} />
             <Route path="/" element={<Index />} />
           </Routes>
         </BrowserRouter>
