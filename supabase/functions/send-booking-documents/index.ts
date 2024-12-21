@@ -37,40 +37,56 @@ serve(async (req) => {
       const total = booking.total_amount || 0
       const rate = booking.rate_per_hour || 0
       const equipment = booking.equipment_cost || 0
+      const invoiceUrl = `${SITE_URL}/api/functions/v1/get-invoice?id=${booking.id}`
 
       return `
         <html>
           <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h1 style="color: #2563eb;">DJ Services Invoice</h1>
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #2563eb; margin: 0;">DJ Services Invoice</h1>
+                <p style="color: #6b7280; margin-top: 5px;">Invoice #${booking.id.slice(0, 8)}</p>
+              </div>
               
-              <div style="margin-bottom: 30px;">
-                <h2>Event Details</h2>
-                <p><strong>Client:</strong> ${booking.name}</p>
-                <p><strong>Date:</strong> ${new Date(booking.event_date).toLocaleDateString()}</p>
-                <p><strong>Event Type:</strong> ${booking.event_type}</p>
-                <p><strong>Location:</strong> TBD</p>
+              <div style="margin-bottom: 30px; background-color: #f8fafc; padding: 20px; border-radius: 8px;">
+                <h2 style="margin-top: 0; color: #1e40af;">Event Details</h2>
+                <p style="margin: 5px 0;"><strong>Client:</strong> ${booking.name}</p>
+                <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date(booking.event_date).toLocaleDateString()}</p>
+                <p style="margin: 5px 0;"><strong>Event Type:</strong> ${booking.event_type}</p>
+                <p style="margin: 5px 0;"><strong>Location:</strong> TBD</p>
               </div>
               
               <div style="margin-bottom: 30px;">
-                <h2>Services & Costs</h2>
+                <h2 style="color: #1e40af;">Services & Costs</h2>
                 <table style="width: 100%; border-collapse: collapse;">
-                  <tr style="border-bottom: 1px solid #ddd;">
-                    <td style="padding: 10px 0;">DJ Services (Rate per Hour)</td>
+                  <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px 0;">DJ Services (Rate per Hour)</td>
                     <td style="text-align: right;">${formatCurrency(rate)}</td>
                   </tr>
-                  <tr style="border-bottom: 1px solid #ddd;">
-                    <td style="padding: 10px 0;">Equipment</td>
+                  <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px 0;">Equipment</td>
                     <td style="text-align: right;">${formatCurrency(equipment)}</td>
                   </tr>
-                  <tr style="font-weight: bold;">
-                    <td style="padding: 10px 0;">Total</td>
+                  <tr style="font-weight: bold; font-size: 1.1em;">
+                    <td style="padding: 12px 0;">Total</td>
                     <td style="text-align: right;">${formatCurrency(total)}</td>
                   </tr>
                 </table>
               </div>
               
-              <div style="margin-top: 30px; font-size: 0.9em; color: #666;">
+              <div style="margin-top: 30px; text-align: center;">
+                <p style="margin-bottom: 20px;">
+                  <a href="${invoiceUrl}" 
+                     style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                    View Detailed Invoice
+                  </a>
+                </p>
+                <p style="color: #6b7280; font-size: 0.9em;">
+                  Click the button above to view your complete itemized invoice
+                </p>
+              </div>
+              
+              <div style="margin-top: 30px; font-size: 0.9em; color: #666; text-align: center;">
                 <p>Please make payment to: [Payment Details]</p>
                 <p>Due date: [Due Date]</p>
               </div>
