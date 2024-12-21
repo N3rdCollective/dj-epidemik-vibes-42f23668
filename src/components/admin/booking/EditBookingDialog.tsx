@@ -30,17 +30,22 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
         total_amount: total
       });
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('dj_bookings')
         .update({ 
           rate_per_hour: rate,
           equipment_cost: equipment,
           total_amount: total
         })
-        .eq('id', booking.id);
+        .eq('id', booking.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating booking:', error);
+        throw error;
+      }
 
+      console.log('Updated booking data:', data);
       toast.success('Booking details updated successfully');
       onUpdate();
       setIsOpen(false);
