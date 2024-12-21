@@ -1,155 +1,149 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { Resend } from 'https://esm.sh/@resend/node'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface BookingData {
-  id: string;
-  name: string;
-  email: string;
-  event_date: string;
-  event_type: string;
-  start_time: string;
-  end_time: string;
-  rate_per_hour: number;
-  equipment_cost: number;
-  total_amount: number;
-  needs_equipment: boolean;
-  equipment_details?: string;
-}
+const SITE_URL = Deno.env.get('SITE_URL') || 'http://localhost:5173'
 
-const generateInvoiceHtml = (booking: BookingData) => {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
-      <h1>DJ Epidemik - Invoice</h1>
-      <hr />
-      <div style="margin: 20px 0;">
-        <h3>Client Information</h3>
-        <p>Name: ${booking.name}</p>
-        <p>Email: ${booking.email}</p>
-      </div>
-      <div style="margin: 20px 0;">
-        <h3>Event Details</h3>
-        <p>Date: ${new Date(booking.event_date).toLocaleDateString()}</p>
-        <p>Type: ${booking.event_type}</p>
-        <p>Time: ${new Date(booking.start_time).toLocaleTimeString()} - ${new Date(booking.end_time).toLocaleTimeString()}</p>
-      </div>
-      <div style="margin: 20px 0;">
-        <h3>Costs Breakdown</h3>
-        <p>Rate per Hour: $${booking.rate_per_hour}</p>
-        <p>Equipment Cost: $${booking.equipment_cost}</p>
-        <p><strong>Total Amount: $${booking.total_amount}</strong></p>
-      </div>
-    </div>
-  `;
-};
-
-const generateContractHtml = (booking: BookingData) => {
-  const signatureUrl = `${Deno.env.get('SITE_URL')}/sign-contract/${booking.id}`;
-  
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
-      <h1>DJ Services Agreement</h1>
-      <hr />
-      <p>This agreement is made between DJ Epidemik ("the DJ") and ${booking.name} ("the Client") for DJ services at the following event:</p>
-      
-      <h3>Event Details</h3>
-      <ul>
-        <li>Date: ${new Date(booking.event_date).toLocaleDateString()}</li>
-        <li>Event Type: ${booking.event_type}</li>
-        <li>Time: ${new Date(booking.start_time).toLocaleTimeString()} - ${new Date(booking.end_time).toLocaleTimeString()}</li>
-      </ul>
-
-      <h3>Services & Fees</h3>
-      <ul>
-        <li>Rate per Hour: $${booking.rate_per_hour}</li>
-        <li>Equipment: ${booking.needs_equipment ? 'Provided by DJ' : 'Not Required'}</li>
-        ${booking.equipment_details ? `<li>Equipment Details: ${booking.equipment_details}</li>` : ''}
-        <li>Equipment Cost: $${booking.equipment_cost}</li>
-        <li><strong>Total Fee: $${booking.total_amount}</strong></li>
-      </ul>
-
-      <h3>Terms & Conditions</h3>
-      <ol>
-        <li>A 50% deposit is required to secure the booking.</li>
-        <li>The remaining balance is due on the day of the event.</li>
-        <li>Cancellations must be made at least 30 days before the event.</li>
-      </ol>
-
-      <div style="margin-top: 40px;">
-        <p>To digitally sign this contract, please click the link below:</p>
-        <a href="${signatureUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Sign Contract</a>
-      </div>
-    </div>
-  `;
-};
-
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    console.log('Checking Resend API key configuration...');
-    if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not set in environment variables');
-      throw new Error('Email service configuration is missing');
+    const { booking, documentType } = await req.json()
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    )
+
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount)
     }
 
-    const { booking, documentType } = await req.json();
-    console.log('Received request to send', documentType, 'for booking:', booking);
+    const generateInvoiceHtml = (booking: any) => {
+      const total = booking.total_amount || 0
+      const rate = booking.rate_per_hour || 0
+      const equipment = booking.equipment_cost || 0
+
+      return `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #2563eb;">DJ Services Invoice</h1>
+              
+              <div style="margin-bottom: 30px;">
+                <h2>Event Details</h2>
+                <p><strong>Client:</strong> ${booking.name}</p>
+                <p><strong>Date:</strong> ${new Date(booking.event_date).toLocaleDateString()}</p>
+                <p><strong>Event Type:</strong> ${booking.event_type}</p>
+                <p><strong>Location:</strong> TBD</p>
+              </div>
+              
+              <div style="margin-bottom: 30px;">
+                <h2>Services & Costs</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px 0;">DJ Services (Rate per Hour)</td>
+                    <td style="text-align: right;">${formatCurrency(rate)}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px 0;">Equipment</td>
+                    <td style="text-align: right;">${formatCurrency(equipment)}</td>
+                  </tr>
+                  <tr style="font-weight: bold;">
+                    <td style="padding: 10px 0;">Total</td>
+                    <td style="text-align: right;">${formatCurrency(total)}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="margin-top: 30px; font-size: 0.9em; color: #666;">
+                <p>Please make payment to: [Payment Details]</p>
+                <p>Due date: [Due Date]</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `
+    }
+
+    const generateContractHtml = (booking: any) => {
+      const signatureUrl = `${SITE_URL}/sign-contract/${booking.id}`
+
+      return `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #2563eb;">DJ Services Contract</h1>
+              
+              <div style="margin-bottom: 30px;">
+                <h2>Event Details</h2>
+                <p><strong>Client:</strong> ${booking.name}</p>
+                <p><strong>Date:</strong> ${new Date(booking.event_date).toLocaleDateString()}</p>
+                <p><strong>Event Type:</strong> ${booking.event_type}</p>
+                <p><strong>Number of Guests:</strong> ${booking.number_of_guests}</p>
+              </div>
+              
+              <div style="margin-bottom: 30px;">
+                <h2>Terms & Conditions</h2>
+                <p>1. The DJ will arrive 2 hours before the event start time for setup.</p>
+                <p>2. The total fee for services is ${formatCurrency(booking.total_amount || 0)}.</p>
+                <p>3. A deposit of 50% is required to secure the booking.</p>
+                <p>4. Cancellation policy: [Details]</p>
+              </div>
+              
+              <div style="margin-top: 30px;">
+                <p>To sign this contract digitally, please click the link below:</p>
+                <p><a href="${signatureUrl}" style="color: #2563eb;">Sign Contract</a></p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `
+    }
 
     const html = documentType === 'invoice' 
       ? generateInvoiceHtml(booking)
-      : generateContractHtml(booking);
+      : generateContractHtml(booking)
 
     const subject = documentType === 'invoice' 
-      ? 'Your DJ Booking Invoice' 
-      : 'DJ Services Agreement - Please Sign';
+      ? 'Your DJ Services Invoice'
+      : 'DJ Services Contract - Please Sign'
 
-    const emailData = {
-      from: 'DJ Epidemik <info@djepidemik.com>',
-      to: [booking.email],
-      subject,
-      html,
-    };
+    const { error: emailError } = await resend.emails.send({
+      from: 'DJ Services <onboarding@resend.dev>',
+      to: booking.email,
+      subject: subject,
+      html: html
+    })
 
-    console.log('Sending email with', documentType);
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify(emailData),
-    });
-
-    const responseData = await res.json();
-    console.log('Resend API response:', responseData);
-
-    if (!res.ok) {
-      throw new Error(responseData.message || 'Failed to send email');
+    if (emailError) {
+      console.error('Error sending email:', emailError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to send email' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
     }
 
-    return new Response(JSON.stringify(responseData), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-  } catch (error) {
-    console.error('Error in send-booking-documents function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      }
-    );
+      JSON.stringify({ message: 'Document sent successfully' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  } catch (error) {
+    console.error('Error:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    )
   }
-};
-
-serve(handler);
+})

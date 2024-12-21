@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contract_signatures: {
+        Row: {
+          booking_id: string
+          id: string
+          signature: string
+          signed_at: string | null
+          signer_email: string
+          signer_ip: string | null
+          status: string | null
+        }
+        Insert: {
+          booking_id: string
+          id?: string
+          signature: string
+          signed_at?: string | null
+          signer_email: string
+          signer_ip?: string | null
+          status?: string | null
+        }
+        Update: {
+          booking_id?: string
+          id?: string
+          signature?: string
+          signed_at?: string | null
+          signer_email?: string
+          signer_ip?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_signatures_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "dj_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dj_bookings: {
         Row: {
           created_at: string
