@@ -37,7 +37,6 @@ serve(async (req) => {
       const total = booking.total_amount || 0
       const rate = booking.rate_per_hour || 0
       const equipment = booking.equipment_cost || 0
-      const invoiceUrl = `${SITE_URL}/api/functions/v1/get-invoice?id=${booking.id}`
 
       return `
         <html>
@@ -72,18 +71,6 @@ serve(async (req) => {
                     <td style="text-align: right;">${formatCurrency(total)}</td>
                   </tr>
                 </table>
-              </div>
-              
-              <div style="margin-top: 30px; text-align: center;">
-                <p style="margin-bottom: 20px;">
-                  <a href="${invoiceUrl}" 
-                     style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                    View Detailed Invoice
-                  </a>
-                </p>
-                <p style="color: #6b7280; font-size: 0.9em;">
-                  Click the button above to view your complete itemized invoice
-                </p>
               </div>
               
               <div style="margin-top: 30px; font-size: 0.9em; color: #666; text-align: center;">
