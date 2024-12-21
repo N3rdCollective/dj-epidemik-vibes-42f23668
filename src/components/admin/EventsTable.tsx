@@ -4,7 +4,18 @@ import { Button } from "@/components/ui/button";
 import { format, isAfter, parseISO, addDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Event {
   id: string;
@@ -39,6 +50,23 @@ export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableP
     }
 
     toast.success('Event visibility updated');
+    onEventUpdate();
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    console.log('Deleting event:', eventId);
+    const { error } = await supabase
+      .from('events')
+      .delete()
+      .eq('id', eventId);
+
+    if (error) {
+      console.error('Error deleting event:', error);
+      toast.error('Failed to delete event');
+      return;
+    }
+
+    toast.success('Event deleted successfully');
     onEventUpdate();
   };
 
@@ -99,15 +127,47 @@ export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableP
               </div>
             </TableCell>
             <TableCell>
-              {!event.is_imported && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEditEvent(event)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {!event.is_imported && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEditEvent(event)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this event? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteEvent(event.id)}
+                            className="bg-red-500 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}
