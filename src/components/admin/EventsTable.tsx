@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { format, isAfter, parseISO, addDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, RepeatIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Event {
   id: string;
@@ -28,6 +34,9 @@ interface Event {
   packages?: any;
   is_imported?: boolean;
   is_live?: boolean;
+  recurring_type?: string;
+  recurring_end_date?: string;
+  recurring_interval?: number;
 }
 
 interface EventsTableProps {
@@ -87,6 +96,21 @@ export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableP
     }
   };
 
+  const getRecurringInfo = (event: Event) => {
+    if (!event.recurring_type || event.recurring_type === 'none') return null;
+
+    const interval = event.recurring_interval || 1;
+    const endDate = event.recurring_end_date 
+      ? format(new Date(event.recurring_end_date), 'MMM dd yyyy')
+      : 'No end date';
+
+    const intervalText = interval === 1 
+      ? event.recurring_type 
+      : `every ${interval} ${event.recurring_type}s`;
+
+    return `Repeats ${intervalText} until ${endDate}`;
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -104,7 +128,23 @@ export const EventsTable = ({ events, onEventUpdate, onEditEvent }: EventsTableP
       <TableBody>
         {events.map((event) => (
           <TableRow key={event.id}>
-            <TableCell>{event.title}</TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                {event.title}
+                {event.recurring_type && event.recurring_type !== 'none' && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <RepeatIcon className="h-4 w-4 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{getRecurringInfo(event)}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+            </TableCell>
             <TableCell>
               {format(new Date(event.start_time), 'MMM dd yyyy')}
             </TableCell>
