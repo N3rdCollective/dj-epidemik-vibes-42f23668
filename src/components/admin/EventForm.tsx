@@ -5,6 +5,7 @@ import { BasicEventFields } from "./form/BasicEventFields";
 import { DateTimeFields } from "./form/DateTimeFields";
 import { EventTypeField } from "./form/EventTypeField";
 import { PackageFields } from "./form/PackageFields";
+import { RecurringEventFields } from "./form/RecurringEventFields";
 import { Package } from "./types/eventTypes";
 import { useEventForm } from "@/hooks/useEventForm";
 import { formatDateTimeForInput, adjustEndTimeForFormDisplay } from "@/utils/timeUtils";
@@ -21,6 +22,10 @@ interface EventFormProps {
     end_time: string;
     type: string;
     packages?: Package[];
+    recurring_type?: string;
+    recurring_end_date?: string;
+    recurring_days?: number[];
+    recurring_interval?: number;
   };
 }
 
@@ -45,6 +50,10 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
         end_time: formatDateTimeForInput(endTime),
         type: event.type,
         packages: event.packages || [],
+        recurring_type: event.recurring_type || 'none',
+        recurring_end_date: event.recurring_end_date,
+        recurring_days: event.recurring_days || [],
+        recurring_interval: event.recurring_interval || 1,
       });
     }
   }, [event, form]);
@@ -57,6 +66,7 @@ export const EventForm = ({ onSuccess, event }: EventFormProps) => {
           <DateTimeFields form={form} />
           <EventTypeField form={form} />
           <PackageFields form={form} showPackages={eventType === 'packages'} />
+          <RecurringEventFields form={form} />
           <Button type="submit" className="w-full">
             {event?.id ? 'Update Event' : 'Create Event'}
           </Button>

@@ -22,6 +22,10 @@ const eventFormSchema = z.object({
   end_time: z.string().min(1, "End time is required"),
   type: z.string().min(1, "Type is required"),
   packages: z.array(packageSchema).optional(),
+  recurring_type: z.enum(['none', 'daily', 'weekly', 'monthly', 'yearly']).default('none'),
+  recurring_end_date: z.string().optional(),
+  recurring_days: z.array(z.number()).optional(),
+  recurring_interval: z.number().min(1).default(1),
 });
 
 type EventInsert = Database['public']['Tables']['events']['Insert'];
@@ -37,6 +41,9 @@ export const useEventForm = (onSuccess: () => void, existingEvent?: EventFormVal
       end_time: "",
       type: "packages",
       packages: [],
+      recurring_type: "none",
+      recurring_days: [],
+      recurring_interval: 1,
     },
   });
 
@@ -62,6 +69,10 @@ export const useEventForm = (onSuccess: () => void, existingEvent?: EventFormVal
       packages: packagesJson as Database['public']['Tables']['events']['Insert']['packages'],
       is_imported: false,
       is_live: true,
+      recurring_type: values.recurring_type,
+      recurring_end_date: values.recurring_end_date ? new Date(values.recurring_end_date).toISOString() : null,
+      recurring_days: values.recurring_days,
+      recurring_interval: values.recurring_interval,
     };
 
     let error;

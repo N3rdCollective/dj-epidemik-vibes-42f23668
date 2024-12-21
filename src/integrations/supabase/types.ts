@@ -117,6 +117,10 @@ export type Database = {
           is_live: boolean | null
           location: string
           packages: Json | null
+          recurring_days: number[] | null
+          recurring_end_date: string | null
+          recurring_interval: number | null
+          recurring_type: string | null
           start_time: string
           title: string
           type: string
@@ -132,6 +136,10 @@ export type Database = {
           is_live?: boolean | null
           location: string
           packages?: Json | null
+          recurring_days?: number[] | null
+          recurring_end_date?: string | null
+          recurring_interval?: number | null
+          recurring_type?: string | null
           start_time: string
           title: string
           type: string
@@ -147,6 +155,10 @@ export type Database = {
           is_live?: boolean | null
           location?: string
           packages?: Json | null
+          recurring_days?: number[] | null
+          recurring_end_date?: string | null
+          recurring_interval?: number | null
+          recurring_type?: string | null
           start_time?: string
           title?: string
           type?: string
