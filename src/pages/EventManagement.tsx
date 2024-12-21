@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEvents } from "@/hooks/useEvents";
 import { EventForm } from "@/components/admin/EventForm";
 import { EventsTable } from "@/components/admin/EventsTable";
-import { RecurringType } from "./admin/types/eventTypes";
+import { RecurringType } from "@/components/admin/types/eventTypes";
 
 interface Event {
   id: string;
