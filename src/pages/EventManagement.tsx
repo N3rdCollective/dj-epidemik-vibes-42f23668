@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { useEvents } from "@/hooks/useEvents";
 import { EventForm } from "@/components/admin/EventForm";
 import { EventsTable } from "@/components/admin/EventsTable";
+import { RecurringType } from "./admin/types/eventTypes";
 
 interface Event {
   id: string;
@@ -22,6 +23,10 @@ interface Event {
   packages?: any;
   is_imported?: boolean;
   is_live?: boolean;
+  recurring_type: RecurringType;
+  recurring_end_date?: string;
+  recurring_days?: number[];
+  recurring_interval?: number;
 }
 
 const EventManagement = () => {
@@ -88,7 +93,11 @@ const EventManagement = () => {
       type: event.type,
       packages: event.packages,
       is_imported: event.is_imported,
-      is_live: event.is_live
+      is_live: event.is_live,
+      recurring_type: event.recurring_type as RecurringType || 'none',
+      recurring_end_date: event.recurring_end_date,
+      recurring_days: event.recurring_days,
+      recurring_interval: event.recurring_interval
     })),
     ...cameloEvents.map(event => ({
       id: event.icalLink,
@@ -96,10 +105,14 @@ const EventManagement = () => {
       venue: event.venue,
       location: event.location,
       start_time: new Date(event.date).toISOString(),
-      end_time: new Date(event.date).toISOString(), // Since Camelo events don't have end_time, we use the same as start_time
+      end_time: new Date(event.date).toISOString(),
       type: event.type,
       is_imported: true,
-      is_live: true // Camelo events are always live
+      is_live: true,
+      recurring_type: 'none' as RecurringType, // Default to 'none' for Camelo events
+      recurring_end_date: undefined,
+      recurring_days: [],
+      recurring_interval: 1
     }))
   ];
 
