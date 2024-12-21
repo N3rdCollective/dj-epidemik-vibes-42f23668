@@ -22,7 +22,7 @@ interface EventFormProps {
     end_time: string;
     type: string;
     packages?: Package[];
-    recurring_type?: RecurringType;
+    recurring_type: RecurringType;
     recurring_end_date?: string;
     recurring_days?: number[];
     recurring_interval?: number;
