@@ -4,6 +4,8 @@ export interface Package {
   description: string;
 }
 
+export type RecurringType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+
 export interface EventFormValues {
   title: string;
   venue: string;
@@ -12,7 +14,7 @@ export interface EventFormValues {
   end_time: string;
   type: string;
   packages?: Package[];
-  recurring_type?: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+  recurring_type: RecurringType;
   recurring_end_date?: string;
   recurring_days?: number[];
   recurring_interval?: number;
@@ -27,7 +29,7 @@ export interface Event {
   end_time: string;
   type: string;
   packages?: Package[];
-  recurring_type?: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+  recurring_type?: RecurringType;
   recurring_end_date?: string;
   recurring_days?: number[];
   recurring_interval?: number;

@@ -6,7 +6,7 @@ import { DateTimeFields } from "./form/DateTimeFields";
 import { EventTypeField } from "./form/EventTypeField";
 import { PackageFields } from "./form/PackageFields";
 import { RecurringEventFields } from "./form/RecurringEventFields";
-import { Package } from "./types/eventTypes";
+import { Package, RecurringType } from "./types/eventTypes";
 import { useEventForm } from "@/hooks/useEventForm";
 import { formatDateTimeForInput, adjustEndTimeForFormDisplay } from "@/utils/timeUtils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,7 +22,7 @@ interface EventFormProps {
     end_time: string;
     type: string;
     packages?: Package[];
-    recurring_type?: string;
+    recurring_type?: RecurringType;
     recurring_end_date?: string;
     recurring_days?: number[];
     recurring_interval?: number;
