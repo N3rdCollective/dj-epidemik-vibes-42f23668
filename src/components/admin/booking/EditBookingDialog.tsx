@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { EventDetailsDisplay } from "./EventDetailsDisplay";
 import { CostInputFields } from "./CostInputFields";
 import { calculateBookingTotal, TotalDisplay } from "./CostCalculator";
+import { Mail } from "lucide-react";
 
 interface EditBookingDialogProps {
   booking: any;
@@ -16,10 +17,10 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
   const [isOpen, setIsOpen] = useState(false);
   const [ratePerHour, setRatePerHour] = useState(booking.rate_per_hour?.toString() || '');
   const [equipmentCost, setEquipmentCost] = useState(booking.equipment_cost?.toString() || '');
+  const [isSending, setIsSending] = useState(false);
 
   const handleSave = async () => {
     try {
-      // Ensure we have valid numbers for calculations
       const rate = parseFloat(ratePerHour) || 0;
       const equipment = parseFloat(equipmentCost) || 0;
       const total = calculateBookingTotal(booking, rate, equipment);
@@ -55,6 +56,32 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
     }
   };
 
+  const sendDocument = async (documentType: 'invoice' | 'contract') => {
+    try {
+      setIsSending(true);
+      const { data, error } = await supabase.functions.invoke('send-booking-documents', {
+        body: { 
+          booking: {
+            ...booking,
+            rate_per_hour: parseFloat(ratePerHour) || 0,
+            equipment_cost: parseFloat(equipmentCost) || 0,
+            total_amount: calculateBookingTotal(booking, parseFloat(ratePerHour) || 0, parseFloat(equipmentCost) || 0)
+          },
+          documentType
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`${documentType.charAt(0).toUpperCase() + documentType.slice(1)} sent successfully`);
+    } catch (error) {
+      console.error(`Error sending ${documentType}:`, error);
+      toast.error(`Failed to send ${documentType}`);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -73,6 +100,27 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
             onEquipmentCostChange={setEquipmentCost}
           />
           <TotalDisplay total={calculateBookingTotal(booking, parseFloat(ratePerHour) || 0, parseFloat(equipmentCost) || 0)} />
+          
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => sendDocument('invoice')}
+              disabled={isSending}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Send Invoice
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => sendDocument('contract')}
+              disabled={isSending}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Send Contract
+            </Button>
+          </div>
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
