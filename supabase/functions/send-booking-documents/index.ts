@@ -1,6 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { Resend } from 'https://esm.sh/@resend/node'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,7 +15,11 @@ serve(async (req) => {
 
   try {
     const { booking, documentType } = await req.json()
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+
+    if (!RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not set')
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -120,20 +123,33 @@ serve(async (req) => {
       ? 'Your DJ Services Invoice'
       : 'DJ Services Contract - Please Sign'
 
-    const { error: emailError } = await resend.emails.send({
-      from: 'DJ Services <onboarding@resend.dev>',
+    console.log('Sending email with Resend:', {
       to: booking.email,
-      subject: subject,
-      html: html
+      subject: subject
     })
 
-    if (emailError) {
-      console.error('Error sending email:', emailError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'DJ Services <onboarding@resend.dev>',
+        to: booking.email,
+        subject: subject,
+        html: html
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('Resend API error:', error)
+      throw new Error(`Failed to send email: ${error}`)
     }
+
+    const data = await response.json()
+    console.log('Email sent successfully:', data)
 
     return new Response(
       JSON.stringify({ message: 'Document sent successfully' }),
@@ -142,7 +158,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
