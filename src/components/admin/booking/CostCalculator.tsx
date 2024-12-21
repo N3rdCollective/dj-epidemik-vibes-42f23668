@@ -1,6 +1,6 @@
 import { addHours, parseISO } from "date-fns";
 
-export const calculateBookingTotal = (booking: any, ratePerHour: string | number, equipmentCost: string | number) => {
+export const calculateBookingTotal = (booking: any, ratePerHour: number, equipmentCost: number) => {
   if (!booking.start_time || !booking.end_time) return 0;
 
   const start = parseISO(booking.start_time);
@@ -13,10 +13,14 @@ export const calculateBookingTotal = (booking: any, ratePerHour: string | number
   // Calculate total hours including setup and breakdown time
   const hours = Math.ceil((adjustedEnd.getTime() - adjustedStart.getTime()) / (1000 * 60 * 60));
   
-  const rate = parseFloat(ratePerHour.toString()) || 0;
-  const equipment = parseFloat(equipmentCost.toString()) || 0;
+  console.log('Calculating total with:', {
+    hours,
+    ratePerHour,
+    equipmentCost,
+    total: (ratePerHour * hours) + equipmentCost
+  });
   
-  return (rate * hours) + equipment;
+  return (ratePerHour * hours) + equipmentCost;
 };
 
 interface TotalDisplayProps {

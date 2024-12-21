@@ -19,14 +19,22 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
 
   const handleSave = async () => {
     try {
-      const total = calculateBookingTotal(booking, ratePerHour, equipmentCost);
-      console.log('Saving booking with total:', total, 'Rate:', ratePerHour, 'Equipment:', equipmentCost);
+      // Ensure we have valid numbers for calculations
+      const rate = parseFloat(ratePerHour) || 0;
+      const equipment = parseFloat(equipmentCost) || 0;
+      const total = calculateBookingTotal(booking, rate, equipment);
+      
+      console.log('Saving booking with:', {
+        rate_per_hour: rate,
+        equipment_cost: equipment,
+        total_amount: total
+      });
 
       const { error } = await supabase
         .from('dj_bookings')
         .update({ 
-          rate_per_hour: parseFloat(ratePerHour),
-          equipment_cost: parseFloat(equipmentCost),
+          rate_per_hour: rate,
+          equipment_cost: equipment,
           total_amount: total
         })
         .eq('id', booking.id);
@@ -59,7 +67,7 @@ export const EditBookingDialog = ({ booking, onUpdate }: EditBookingDialogProps)
             onRateChange={setRatePerHour}
             onEquipmentCostChange={setEquipmentCost}
           />
-          <TotalDisplay total={calculateBookingTotal(booking, ratePerHour, equipmentCost)} />
+          <TotalDisplay total={calculateBookingTotal(booking, parseFloat(ratePerHour) || 0, parseFloat(equipmentCost) || 0)} />
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
