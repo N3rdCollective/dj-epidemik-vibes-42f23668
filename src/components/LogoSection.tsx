@@ -39,7 +39,7 @@ export const LogoSection = () => {
             onError={(e) => console.error("Image failed to load:", e)}
           />
           <p className="text-xl md:text-2xl text-gray-300 mb-8">
-            Experience the Epidemic of Sound
+            The voice of the underground
           </p>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
